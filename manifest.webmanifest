@@ -1,0 +1,16 @@
+{
+  "name": "지식 작업실",
+  "short_name": "지식 작업실",
+  "description": "공략집, 정리본, 업무일지를 쓰는 작업실",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ece6d8",
+  "theme_color": "#f6f2e8",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

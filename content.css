@@ -1,0 +1,41 @@
+/* 편집 화면 글 모양 — PDF 「종이판」(server.py PAPER_CSS)과 같은 모양 */
+/* 11/13 굵기별 고정 글꼴(가변 글꼴은 한글 일부 깨짐) */
+@font-face{font-family:NK;src:url("fonts/NK-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:NK;src:url("fonts/NK-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:NK;src:url("fonts/NK-600.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:NK;src:url("fonts/NK-700.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:NK;src:url("fonts/NK-800.woff2") format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:NK;src:url("fonts/NK-900.woff2") format("woff2");font-weight:900;font-display:swap}
+/* 11/21 패턴 블록 제목 글꼴(벽보 Black Han Sans, 고정 파일 — 오프라인·PDF도 같은 글꼴) */
+@font-face{font-family:"Black Han Sans";src:url("fonts/BHS.woff2") format("woff2");font-display:swap}
+.doc{--ink:#26231f;--red:#a3271f;--card:#f8f3e8;--mute:#8d8273;--line:#d6c9ad;--hl:#f6d860;
+  font-family:NK,Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color:var(--ink);font-size:17px;line-height:1.9;letter-spacing:-.1px;word-break:keep-all;overflow-wrap:anywhere}
+.doc h2{font-size:21px;line-height:1.45;font-weight:900;margin:2em 0 .6em;padding-left:11px;border-left:5px solid var(--red)}
+.doc h3{font-size:17px;line-height:1.45;font-weight:800;margin:1.4em 0 .4em;color:var(--red)}
+.doc p{margin:.3em 0 .7em}
+.doc b,.doc strong{font-weight:800}
+.doc mark,.doc span[style*="background"]{background:var(--hl)!important;color:inherit;padding:0 3px;border-radius:2px;font-weight:700}
+.doc blockquote{margin:1em 0 1.4em;padding:0 16px 14px;background:#2b2724;color:#f4eee1;border-radius:3px;overflow:hidden;line-height:1.75}
+.doc blockquote::before{content:"핵심";display:block;background:var(--red);color:#fff;font-size:12px;font-weight:800;letter-spacing:1px;padding:5px 16px;margin:0 -16px 10px}
+.doc blockquote mark,.doc blockquote span[style*="background"]{color:var(--ink)}
+.doc ul,.doc ol{padding-left:1.4em;margin:.4em 0 1em}
+.doc li{margin:0 0 .35em}
+.doc ul>li::marker{color:var(--red)}
+.doc ol{list-style:none;padding:0;counter-reset:o}
+.doc ol>li{counter-increment:o;background:var(--card);border:1.5px solid var(--line);border-radius:3px;padding:10px 14px 10px 40px;margin:0 0 9px;position:relative}
+.doc ol>li::before{content:counter(o) ".";position:absolute;left:14px;top:10px;font-weight:900}
+.doc ul.todo{list-style:none;padding-left:2px}
+.doc ul.todo>li{position:relative;padding-left:28px}
+.doc ul.todo>li::before{content:"";position:absolute;left:0;top:.38em;width:16px;height:16px;border:2px solid var(--ink);border-radius:2px;box-sizing:border-box;cursor:pointer}
+.doc ul.todo>li.done{color:var(--mute);text-decoration:line-through}
+.doc ul.todo>li.done::after{content:"✓";position:absolute;left:3px;top:0;font-weight:900;color:var(--red)}
+.doc hr{border:0;border-top:1px dashed var(--line);margin:1.6em 0}
+
+/* 가설 장부 표 */
+.doc table.ledger{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:14.5px;line-height:1.6}
+.doc table.ledger th{background:#2b2724;color:#f4eee1;font-weight:700;text-align:left;padding:8px 10px;font-size:13px;letter-spacing:.02em}
+.doc table.ledger td{border-bottom:1px solid var(--line);padding:9px 10px;vertical-align:top;background:rgba(255,255,255,.35)}
+.doc table.ledger td p{margin:0}
+/* 가설일지 날짜 칸 */
+.doc.journal h2{border:0;padding:0 0 6px;margin:1.9em 0 .5em;font-size:19px;font-weight:800;color:var(--acc,#3e6a8a);border-bottom:1.5px solid var(--line);letter-spacing:-.01em}
+.doc.journal h2:first-child{margin-top:.2em}

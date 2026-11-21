@@ -1,0 +1,1448 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>지식 작업실</title>
+<meta name="description" content="공략집, 정리본, 업무일지를 쓰고 PDF로 묶는 개인 작업실">
+<link rel="stylesheet" href="content.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f6f2e8">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="merge.js"></script>
+<script src="phone.js"></script>
+<link rel="stylesheet" href="mind.css">
+<script src="mind.js"></script>
+<link rel="stylesheet" href="patterns.css">
+<link rel="stylesheet" href="ptwrap.css">
+<script src="pattern.js"></script>
+<link rel="stylesheet" href="blocks.css">
+<script src="blocks.js"></script>
+<script src="board.js"></script>
+<style>
+
+
+/* 11/13 개편: 덜어내기 · 따뜻한 종이 · 쓰는 동안 화면이 물러남(iA Writer) · 오늘부터 쓰기(Day One·Logseq 저널) · 조용한 사이드바(Bear·Obsidian Minimal)
+   11/14 홀마크: 장식 점·글자 아이콘·색 번짐 그림자·들뜨는 카드 걷어냄, 색은 전부 토큰, 키보드 테두리 */
+:root{
+  --font:NK,Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;
+  --desk:#ece6d8; --side:#f6f2e8; --paper:#f4eee1; --line:#e2d8c4; --line2:#d6c9ad; --ink:#2a2620; --ink2:#3b362e; --ink3:#554e43; --muted:#7f7462; --faint:#a89c84; --hover:#ede6d6;
+  --raised:#fdfaf3; --well:#ebe4d4; --on-acc:#fdfaf3; --ph:#bfb39b; --hl:#f6d860; --note:#fbf0cf; --note-line:#ead79c; --toast:#2a2620;
+  --cam-black:#141210; --cam-hover:#4a443b;
+  --shade:rgba(60,45,25,.08); --shade2:rgba(60,45,25,.12); --sheen:rgba(255,255,255,.6); --wear:rgba(150,125,90,.11); --veil:rgba(42,38,32,.2);
+  --g:#9b3a2c; --g-soft:#f3e2db; --j:#3f6e57; --j-soft:#e2ede6; --h:#3d6585; --h-soft:#e1e9f1; --m:#8a6420; --m-soft:#f1e7cf; --warn:#a3271f;
+  --acc:var(--g); --soft:var(--g-soft);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow-x:clip;background:var(--desk);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,.tab:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.app{display:grid;grid-template-columns:256px 1fr;height:100vh;height:100dvh}
+.side,.tabs,.bar{transition:opacity .45s}
+.app.typing .side,.app.typing .tabs,.app.typing .bar{opacity:.18}
+.app.typing .side:hover,.app.typing .tabs:hover,.app.typing .bar:hover,.app.typing .side:focus-within,.app.typing .bar:focus-within{opacity:1}
+
+/* 왼쪽 */
+.side{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.brand{padding:24px 20px 12px;display:flex;align-items:baseline;gap:8px}
+.brand b{font-size:17px;font-weight:800}
+.brand span{font-size:12px;color:var(--faint)}
+.todayBtn{margin:4px 16px 12px;display:flex;align-items:center;gap:8px;border:0;background:var(--h);color:var(--on-acc);border-radius:12px;padding:12px 16px;font-size:14.5px;font-weight:700;text-align:left}
+.todayBtn:hover{filter:brightness(1.08)}
+.todayBtn small{margin-left:auto;font-weight:500;opacity:.85;font-size:12px}
+.search{margin:0 16px 8px;position:relative}
+.search input{width:100%;border:1px solid transparent;background:var(--well);border-radius:10px;padding:8px 12px 8px 32px;font:inherit;font-size:13.5px;outline:none;color:var(--ink)}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{background:var(--raised)}
+.search input:focus-visible{outline:2px solid var(--h);outline-offset:0}
+.search svg{position:absolute;left:12px;top:10px;width:14px;height:14px;color:var(--muted)}
+.cols{overflow:auto;padding:4px 8px 20px;flex:1}
+.col{margin-top:16px}
+.col-h{display:flex;align-items:center;gap:8px;padding:4px 12px;font-size:12.5px;font-weight:700;color:var(--c,var(--muted))}
+.col-h .n{font-weight:500;color:var(--faint)}
+.col-h .add{margin-left:auto;border:0;background:none;width:24px;height:24px;border-radius:8px;font-size:17px;line-height:1;color:var(--faint)}
+.col-h .add:hover{background:var(--hover);color:var(--c)}
+.item{display:block;width:100%;text-align:left;border:0;background:none;padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.4;color:var(--ink2)}
+.item:hover{background:var(--hover)}
+.item.on{background:var(--raised);color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--c),0 1px 2px var(--shade)}
+.item small{display:block;color:var(--faint);font-size:11.5px;font-weight:400;margin-top:1px}
+.item.pdfonly{color:var(--muted)}
+/* 11/21 목록에서 바로 지우기 — 줄에 마우스를 올리면 오른쪽 휴지통 아이콘(Finder·Notion 사이드바), 오른쪽 클릭·길게 누르기 = 메뉴 */
+.row{position:relative}
+.row .item{padding-right:36px;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.rowDel{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:26px;height:26px;border:0;border-radius:7px;background:none;color:var(--faint);display:flex;align-items:center;justify-content:center;opacity:0;cursor:pointer}
+.rowDel svg{width:15px;height:15px}
+.row:hover .rowDel,.rowDel:focus-visible{opacity:1}
+.rowDel:hover{background:var(--well);color:var(--warn)}
+.phone .rowDel{display:none}
+@media (hover:none){.rowDel{display:none}}
+.trashLink{display:flex;align-items:center;gap:8px;width:calc(100% - 16px);margin:12px 8px 4px;border:0;border-top:1px dashed var(--line2);background:none;padding:12px 12px 8px;font-size:13px;color:var(--muted);text-align:left}
+.trashLink svg{width:15px;height:15px}
+.trashLink:hover{color:var(--ink)}
+.trashLink .n{color:var(--faint)}
+.ctx{position:fixed;z-index:60;min-width:168px;background:var(--raised);border:1px solid var(--line2);border-radius:10px;box-shadow:0 10px 30px var(--veil);padding:4px;display:flex;flex-direction:column}
+.ctx[hidden]{display:none}
+.ctx .who{font-size:11.5px;color:var(--faint);padding:6px 10px 4px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctx button{border:0;background:none;text-align:left;padding:9px 10px;border-radius:7px;font-size:14px;color:var(--ink2)}
+.ctx button:hover,.ctx button:focus-visible{background:var(--hover);outline:none}
+.ctx button.danger{color:var(--warn)}
+.tr-row{display:flex;align-items:center;gap:10px}
+.tr-row .grow{flex:1;min-width:0}
+.tr-row .nm{font-weight:600;color:var(--ink)}
+.tr-row .btn{flex:none;height:30px}
+.reviveBn{flex:none;margin:8px 16px 0;max-width:none}
+.sub{font-size:11.5px;color:var(--faint);padding:12px 12px 4px}
+.empty{font-size:13px;color:var(--faint);padding:4px 12px}
+.hit small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-foot{padding:12px 20px 16px;font-size:12px;color:var(--faint);display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.side-foot button{border:0;background:none;padding:4px 8px;border-radius:6px;font-size:12px;color:var(--muted)}
+.side-foot button:hover{background:var(--hover);color:var(--ink)}
+
+.shotBtn{margin:0 16px 12px;display:flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--raised);color:var(--ink2);border-radius:12px;padding:10px 16px;font-size:14px;font-weight:700;text-align:left}
+.shotBtn svg{width:18px;height:18px;color:var(--h)}
+.shotBtn:hover{border-color:var(--h);color:var(--ink)}
+.shotBtn:active{background:var(--hover)}
+
+/* 필사 찍기 창 */
+.cam{width:calc(100% - 32px);max-width:960px;max-height:calc(100vh - 32px);border:0;border-radius:16px;padding:0;background:var(--toast);color:var(--on-acc);display:none;flex-direction:column;overflow:hidden}
+.cam[open]{display:flex}
+.cam::backdrop{background:var(--veil)}
+.cam-top{display:flex;align-items:baseline;gap:12px;padding:16px 20px 12px;font-size:13px}
+.cam-top b{font-size:16px}
+.cam-top span{opacity:.75}
+.cam-x{margin-left:auto;color:var(--on-acc)}
+.cam-x:hover{background:var(--cam-hover);color:var(--on-acc)}
+.cam-stage{position:relative;background:var(--cam-black);aspect-ratio:16/9;min-height:0}
+.cam-stage video{width:100%;height:100%;object-fit:contain;display:block;transform:scaleX(-1)}
+.cam-stage.flash::after{content:"";position:absolute;inset:0;background:var(--on-acc);animation:flash .25s ease-out forwards;pointer-events:none}
+@keyframes flash{from{opacity:.6}to{opacity:0}}
+.cam-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;font-size:14.5px;line-height:1.8}
+.cam-msg[hidden]{display:none}
+.cam-retry{margin-top:16px}
+.cam-strip{display:flex;gap:8px;padding:12px 20px 0;overflow-x:auto;min-height:12px}
+.cam-strip figure{position:relative;margin:0;flex:none}
+.cam-strip img{display:block;height:72px;border-radius:6px}
+.cam-strip figcaption{position:absolute;left:4px;top:4px;font-size:11px;font-weight:700;background:var(--toast);padding:0 6px;border-radius:4px}
+.cam-del{position:absolute;right:4px;bottom:4px;border:0;border-radius:6px;background:var(--toast);color:var(--on-acc);font-size:11px;padding:2px 6px}
+.cam-del:hover{background:var(--warn)}
+.cam-bot{display:flex;align-items:center;gap:12px;padding:12px 20px 16px}
+.cam-bot .status{color:var(--on-acc);opacity:.75}
+.shutter{border:3px solid var(--on-acc);background:var(--h);color:var(--on-acc);height:56px;min-width:120px;padding:0 24px;border-radius:28px;font-size:16px;font-weight:800}
+.shutter:hover{filter:brightness(1.1)}
+.shutter:active{transform:scale(.97)}
+.shutter:disabled{background:var(--cam-hover);border-color:var(--cam-hover);color:var(--faint);cursor:not-allowed}
+
+/* 오른쪽 */
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.tabs{display:flex;align-items:center;gap:4px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none;min-height:48px}
+.tab{display:flex;align-items:center;gap:8px;max-width:230px;padding:6px 6px 6px 12px;border-radius:8px;font-size:13px;color:var(--muted);background:none;white-space:nowrap;cursor:pointer}
+.tab:hover{background:var(--hover)}
+.tab.on{background:var(--raised);color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--c),0 1px 2px var(--shade)}
+.tab .t{overflow:hidden;text-overflow:ellipsis}
+.tab .dirty{font-size:11px;font-weight:500;color:var(--warn)}
+.tab .x{border:0;background:none;width:20px;height:20px;border-radius:6px;color:var(--faint);font-size:15px;line-height:1;padding:0;font-weight:400}
+.tab .x:hover{background:var(--hover);color:var(--ink)}
+
+.bar{display:flex;align-items:center;gap:2px;margin:8px 16px 0;padding:4px 8px;background:var(--raised);border:1px solid var(--line);border-radius:12px;flex-wrap:wrap}
+.bar[hidden]{display:none}
+.tb{border:0;background:none;height:32px;min-width:32px;padding:0 8px;border-radius:8px;font-size:13px;color:var(--ink3);display:inline-flex;align-items:center;gap:4px}
+.tb:hover{background:var(--hover);color:var(--ink)}
+.tb:active{background:var(--line)}
+.tb b{font-weight:800}
+.tb.on{background:var(--well);color:var(--ink);box-shadow:inset 0 -2px 0 var(--acc)}
+.tb .hl{background:var(--hl);padding:0 4px;border-radius:3px;color:var(--ink)}
+.tb .rd{color:#d2232a;font-weight:800}
+.tb .qk{background:var(--ink);color:var(--paper);padding:0 6px;border-radius:3px;font-weight:700;box-shadow:inset 0 3px 0 var(--warn)}
+.tb svg{width:16px;height:16px}
+.sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+.grow{flex:1}
+.status{font-size:12px;color:var(--faint);margin-right:8px;white-space:nowrap}
+.status.busy{color:var(--acc)}
+.status.err{color:var(--warn)}
+.btn{border:1px solid var(--line);background:var(--raised);height:32px;padding:0 12px;border-radius:8px;font-size:13px;color:var(--ink3)}
+.btn:hover{border-color:var(--line2);color:var(--ink)}
+.btn:active{background:var(--hover)}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.btn.ghost:hover{background:var(--hover)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:var(--on-acc);font-weight:700;padding:0 16px}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled,.btn.primary:disabled{background:var(--well);border-color:var(--well);color:var(--muted);cursor:not-allowed;filter:none}
+.btn.ghost:disabled{background:none;border-color:transparent}
+.btn[hidden]{display:none}
+
+.scroll{flex:1;overflow:auto;min-height:0;scroll-behavior:smooth}
+.paper{position:relative;max-width:760px;margin:24px auto 140px;background-color:var(--paper);
+  background-image:radial-gradient(ellipse at 12% 8%,var(--sheen),transparent 55%),radial-gradient(ellipse at 90% 88%,var(--wear),transparent 60%);
+  border-radius:4px;padding:56px 68px 90px;box-shadow:0 1px 2px var(--shade),0 18px 48px var(--shade2)}
+.stamp{position:absolute;top:26px;right:28px;border:2px solid var(--g);color:var(--g);font-weight:900;font-size:11px;padding:3px 9px;transform:rotate(4deg);opacity:.7;user-select:none}
+.kicker{padding-right:140px;font-size:11.5px;font-weight:700;color:var(--muted)}
+.title{display:block;resize:none;overflow:hidden;width:100%;border:0;outline:none;font:inherit;font-size:30px;font-weight:900;letter-spacing:-.02em;line-height:1.3;margin:14px 0 6px;padding:0 0 16px;border-bottom:2px solid var(--ink);background:none;color:var(--ink)}
+.title[readonly]{cursor:default}
+.title::placeholder{color:var(--ph)}
+.motto{margin:10px 0 0;padding:10px 14px;border-left:3px solid var(--g);background:var(--g-soft);font-size:14px;line-height:1.65;color:var(--ink2);font-weight:600;user-select:none}
+.hint{font-size:12.5px;color:var(--muted);margin:-2px 0 0;line-height:1.6}
+#ed{outline:none;min-height:50vh;padding-top:16px;caret-color:var(--acc)}
+#ed:empty::before{content:"여기에 쓰세요. 위 도구나 「/」로 큰 제목·핵심 상자·마인드맵을 넣을 수 있어요.";color:var(--ph)}
+#ed.journal:empty::before{content:"오늘 있었던 일, 잘된 이유·안된 이유, 「아 이거 아니네, 그럼 이건가」… 형식 없이 막 쓰세요."}
+#ed h2{position:relative}
+#ed > :first-child{margin-top:0}  /* 11/14 맨 위 큰 제목 위 빈 칸(여백이라 지워지지 않던 것) 없앰 — PDF는 표지 다음 새 쪽이라 상관없음 */
+#ed:not(.journal) h2::after{content:"PDF 새 쪽";position:absolute;right:0;top:.55em;font-size:10.5px;font-weight:500;color:var(--faint)}
+#ed.journal > h2:last-of-type + p{position:relative}
+#ed.journal > h2:last-of-type + p:last-child:has(> br:only-child)::before{content:"오늘 뭐가 잘됐고, 뭐가 안됐나요? 왜 그랬을까요?";position:absolute;left:0;top:0;color:var(--ph);pointer-events:none}
+
+/* 첫 화면 */
+.welcome{max-width:640px;margin:9vh auto 80px;padding:0 24px}
+.welcome .hi{font-size:13px;color:var(--muted);margin:0 0 8px}
+.welcome h1{text-wrap:balance;font-size:28px;line-height:1.35;color:var(--ink);margin:0 0 24px;font-weight:900;letter-spacing:-.02em}
+.big{display:block;width:100%;text-align:left;border:0;border-radius:16px;padding:24px 28px;background:var(--h);color:var(--on-acc)}
+.big:hover{filter:brightness(1.08)}
+.big:active{filter:brightness(.96)}
+.big b{display:block;font-size:20px;font-weight:800;margin-bottom:4px}
+.big span{font-size:13.5px;opacity:.88;line-height:1.55}
+.three{margin-top:8px;border-top:1px solid var(--line2)}
+.card{display:flex;align-items:baseline;gap:16px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:14px 8px;text-align:left}
+.card:hover{background:var(--hover)}
+.card b{flex:none;width:120px;font-size:14.5px;color:var(--c)}
+.card span{font-size:13px;line-height:1.55;color:var(--muted)}
+.recent{margin-top:32px}
+.recent h2{font-size:12.5px;color:var(--muted);font-weight:700;margin:0 0 8px}
+.recent button{display:flex;width:100%;align-items:baseline;gap:12px;border:0;background:none;text-align:left;padding:8px;border-radius:8px;font-size:14px}
+.recent button:hover{background:var(--hover)}
+.recent button em{flex:none;width:56px;font-style:normal;font-size:12px;font-weight:600;color:var(--c)}
+.recent button small{margin-left:auto;color:var(--faint);font-size:12px}
+.rules{margin-top:32px;font-size:12.5px;color:var(--muted);line-height:1.75;border-top:1px dashed var(--line2);padding-top:16px}
+
+.banner{max-width:760px;margin:16px auto -8px;background:var(--note);border:1px solid var(--note-line);border-radius:12px;padding:8px 16px;font-size:13.5px;display:flex;gap:8px;align-items:center}
+.banner .grow{flex:1}
+.banner.outside{align-items:flex-start;flex-wrap:wrap}
+.banner .chgNote{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:var(--muted);line-height:1.6;max-height:180px;overflow:auto}
+.doc .jx-new{box-shadow:inset 3px 0 0 #e0b100;background:rgba(255,210,0,.16);transition:background .8s,box-shadow .8s}   /* 11/16 다른 곳에서 바뀐 곳 — 저장본에는 안 남음(edHtml·save·서버에서 걷음) */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--toast);color:var(--on-acc);font-size:13.5px;padding:10px 16px;border-radius:10px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* 집중 모드 */
+.app.focus{grid-template-columns:0 1fr}
+.app.focus .side{border:0}
+.app.focus .tabs{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  .side,.tabs,.bar,.toast{transition:none}
+  .cam-stage.flash::after{animation:none}
+  .scroll{scroll-behavior:auto}
+}
+@media (max-width:760px){
+  .app,.app.focus{grid-template-columns:1fr}
+  .side{display:none}
+  .app.menu .side{display:flex;position:fixed;inset:0 20% 0 0;z-index:5;box-shadow:0 0 40px var(--veil)}
+  .paper{margin:10px 10px 80px;padding:24px 18px 50px;border-radius:10px}
+  .title{font-size:24px}
+  .stamp{top:14px;right:14px;font-size:9.5px;padding:2px 6px}
+  .kicker{padding-right:0;margin-top:22px}
+  .menu-btn{display:inline-flex!important}
+  .card{flex-direction:column;gap:2px}
+}
+.menu-btn{display:none}
+/* 11/15 폰앱: 필사 찍기·폴더 열기는 맥 일 (PDF 보기는 폰에도 — 맥이 만든 PDF를 폰에 받아 둠) */
+.phone #shotBtn,.phone .side-foot{display:none!important}
+.outside{background:var(--h-soft);border-color:var(--h)}
+/* 11/15 큰 제목 순서 바꾸기 — 제목 왼쪽 ▲▼ (끌기 X, 누르기만) */
+.mv{position:absolute;left:20px;width:28px;display:flex;flex-direction:column;gap:3px;z-index:3;user-select:none}
+.mv button{width:28px;height:22px;border:1px solid var(--line,#d9cdb4);border-radius:6px;background:var(--paper);color:var(--muted);font-size:11px;line-height:1;cursor:pointer;padding:0}
+.mv button:hover:not(:disabled){background:var(--acc);color:#fff;border-color:var(--acc)}
+.mv button:disabled{opacity:.25;cursor:default}
+@media (max-width:700px){.mv{left:-2px;width:22px}.mv button{width:22px;height:20px}}
+/* 11/16 댓글 — 고른 글자에 고칠 지시. 점선 밑줄 + 옅은 파랑(형광펜 노랑과 다름). PDF에는 안 나옴(server.py strip_cmts) */
+:root{--cmt:#e3ebf2;--cmt-on:#c6d7e6}
+#ed .cmt{background:var(--cmt);border-bottom:2px dotted var(--h);border-radius:2px;cursor:pointer}
+#ed .cmt[data-reply]{border-bottom-color:var(--warn)}
+.cmtPop{position:fixed;z-index:20;border:0;background:var(--h);color:var(--on-acc);border-radius:16px;padding:6px 12px;font-size:13px;font-weight:700;box-shadow:0 4px 14px var(--shade2)}
+.cmtPop[hidden],.cmtSheet[hidden]{display:none}
+.scroll.rail .paper{margin-left:max(24px,calc((100% - 1016px)/2));margin-right:auto}
+/* 11/20 마인드맵 칸 — 편집 화면은 mind.js·mind.css, 여기선 칸 전환만 */
+.app.mindmode .bar [data-cmd],.app.mindmode .bar .sep,.app.mindmode #cmtBtn,.app.mindmode #cmtNav,.app.mindmode #focusBtn,.app.mindmode #count{display:none!important}
+.app.mindmode .scroll{overflow:hidden;display:flex;flex-direction:column;scroll-behavior:auto}
+.app.mindmode .scroll>.banner{flex:none;margin:8px 16px 0}
+.mwrap{flex:1;min-height:0;display:flex;flex-direction:column;margin:8px 16px 12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
+.mtitle{flex:none;border:0;border-bottom:1px solid var(--line);background:var(--raised);font:inherit;font-size:16px;font-weight:800;color:var(--ink);padding:9px 14px;resize:none;outline:none;height:42px;line-height:24px;overflow:hidden;white-space:nowrap}
+.mtitle::placeholder{color:var(--ph);font-weight:600}
+.mhost{flex:1;min-height:0;position:relative}
+@media (max-width:760px){.mwrap{margin:6px 6px 8px;border-radius:10px}}
+.cc{position:absolute;left:calc(100% + 16px);width:232px;background:var(--raised);border:1px solid var(--line);border-left:3px solid var(--h);border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.55;color:var(--ink2);box-shadow:0 1px 2px var(--shade);z-index:2}
+.cc.on{border-color:var(--h);box-shadow:0 4px 16px var(--shade2)}
+.cc .tag{display:inline-block;font-size:11px;font-weight:700;color:var(--h);margin-bottom:2px}
+.cc q{display:block;color:var(--muted);font-size:12px;quotes:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc .nt{white-space:pre-wrap;color:var(--ink);margin:2px 0;overflow-wrap:anywhere}
+.cc .rp{color:var(--warn);font-size:12.5px;background:var(--g-soft);border-radius:6px;padding:4px 8px;margin:4px 0;white-space:pre-wrap}
+.cc .acts{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap}
+.cc .acts button{border:0;background:none;padding:3px 8px;border-radius:6px;font-size:12.5px;color:var(--muted)}
+.cc .acts button:hover{background:var(--hover);color:var(--ink)}
+.cc .acts .save{background:var(--h);color:var(--on-acc);font-weight:700}
+.cc .acts .save:hover{background:var(--h);color:var(--on-acc);filter:brightness(1.08)}
+.cc textarea{display:block;width:100%;min-height:64px;margin-top:4px;border:1px solid var(--line2);border-radius:6px;padding:6px 8px;font:inherit;font-size:13.5px;resize:vertical;background:var(--paper);color:var(--ink);outline:none}
+.cc textarea:focus{border-color:var(--h)}
+.docCmts{display:flex;flex-direction:column;gap:8px;margin:14px 0 0}
+.docCmts:empty{display:none}
+.docCmts .cc,.cmtSheet .cc{position:static;width:auto}
+.cmtSheet{position:fixed;left:8px;right:8px;bottom:8px;z-index:21;max-width:520px;margin:0 auto}
+/* 11/16 동기화 기록 — 도구줄 오른쪽 끝 버튼 + 오른쪽 패널(폰은 꽉 찬 시트). 커밋 기록 + _동기화기록.jsonl + (폰) 폰 안 실패 */
+.slBtn{margin-left:auto;flex:none;position:sticky;right:0;border:1px solid var(--line2);background:var(--raised);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;color:var(--ink3);white-space:nowrap}
+.slBtn:hover{background:var(--hover);color:var(--ink)}
+.slog{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);z-index:40;background:var(--raised);border-left:1px solid var(--line2);box-shadow:-12px 0 40px var(--shade2);display:flex;flex-direction:column}
+.slog[hidden]{display:none}
+.sl-top{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;padding-top:max(14px,env(safe-area-inset-top));border-bottom:1px solid var(--line)}
+.sl-top b{flex:1;font-size:16px;font-weight:800}
+.sl-st{padding:10px 16px;font-size:13px;line-height:1.6;color:var(--ink2);background:var(--well);border-bottom:1px solid var(--line)}
+.sl-st .bad{color:var(--warn);font-weight:700}
+.sl-list{list-style:none;margin:0;padding:4px 0 max(16px,env(safe-area-inset-bottom));overflow:auto;-webkit-overflow-scrolling:touch;flex:1}
+.sl-list li{padding:8px 16px;border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.55;color:var(--ink2);overflow-wrap:anywhere}
+.sl-list li .w{color:var(--muted);font-variant-numeric:tabular-nums}
+.sl-list li .a{font-weight:700}
+.sl-list li.phone .a{color:var(--h)} .sl-list li.mac .a{color:var(--j)}
+.sl-list li.conflict{background:var(--h-soft)} .sl-list li.conflict .a{color:var(--h)} .sl-list li.merge .a{color:var(--j)}
+.sl-list li.fail{background:var(--g-soft)} .sl-list li.fail .a{color:var(--warn)}
+.sl-list li .m{color:var(--muted);font-size:12.5px}
+.sl-list button.n{border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line2);text-underline-offset:3px;text-align:left;cursor:pointer}
+.sl-list button.n:hover{color:var(--acc)}
+.sl-list .gone{color:var(--muted)}
+.sl-empty{padding:30px 16px;color:var(--muted);font-size:13.5px;text-align:center}
+@media (max-width:760px){.slog{width:100%;border-left:0}.slBtn{padding:5px 8px}}
+
+.cmtSheet .cc{box-shadow:0 8px 30px var(--veil);padding:12px 14px;font-size:14px}
+.cmtSheet .cc .acts button{font-size:13.5px;padding:6px 10px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="side">
+    <div class="brand"><b>지식 작업실</b><span>쓰면 쌓인다</span></div>
+    <button class="todayBtn" data-today="1"><span>오늘 일지 쓰기</span><small id="todayLbl"></small></button>
+    <button class="shotBtn" id="shotBtn" title="노트에 쓴 손글씨를 카메라로 찍어 두면 클로드가 옮겨 적어요"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6.5h3l1.5-2h5l1.5 2h3v9H3z"/><circle cx="10" cy="10.5" r="3"/></svg>필사 찍기</button>
+    <div class="search">
+      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>
+      <input id="q" placeholder="찾기" autocomplete="off">
+    </div>
+    <div class="cols" id="cols"></div>
+    <div class="side-foot">폴더 <button data-reveal="gongsik">공략집</button><button data-reveal="jeongri">정리본</button><button data-reveal="gasul">업무일지</button><button data-reveal="mind">마인드맵</button></div>
+  </aside>
+
+  <main class="main">
+    <div class="tabs" id="tabs"><button class="tb menu-btn" id="menuBtn" aria-label="목록 열기"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button><button class="tb slBtn" id="slBtn" type="button" title="어느 기기에서 언제 무엇이 올라가고 내려왔는지 · 충돌·실패">🔄 동기화 기록</button></div>
+    <div class="bar" id="bar" hidden>
+      <button class="tb" data-cmd="h2" title="큰 제목 (공략집·정리본 PDF에서 새 쪽) · 한글 Ctrl+3(개요1) · 줄 맨 앞에 # 띄어쓰기">큰 제목</button>
+      <button class="tb" data-cmd="h3" title="소제목 · 한글 Ctrl+4(개요2)">소제목</button>
+      <button class="tb" data-cmd="p" title="본문 · 한글 Ctrl+2 · 제목 맨 앞에서 지우기">본문</button>
+      <span class="sep"></span>
+      <button class="tb" data-cmd="bold" title="진하게 · 한글 Ctrl+B · Alt+Shift+B"><b>가</b></button>
+      <button class="tb" data-cmd="mark" title="형광펜 (글자를 드래그한 뒤) · ⌘⇧H (한글엔 단축키 없음)"><span class="hl">형광펜</span></button>
+      <button class="tb" data-cmd="red" title="빨강 강조 — 벽보처럼 빨간 글자 (글자를 드래그한 뒤) · ⌘⇧E · 다시 누르면 풀림"><span class="rd">빨강</span></button>
+      <span class="sep"></span>
+      <button class="tb" data-cmd="ul" title="글머리 목록 · 한글 Ctrl+Shift+Delete(맥 Ctrl+Shift+8) · Tab·Shift+Tab 수준">목록</button>
+      <button class="tb" data-cmd="ol" title="번호 목록 · 한글 Ctrl+Shift+Insert(맥 Ctrl+Shift+7)">번호</button>
+      <button class="tb" data-cmd="todo" title="체크 목록 · 줄 맨 앞에 [] 띄어쓰기">체크</button>
+      <button class="tb" data-cmd="quote" title="핵심 상자 (PDF에서 빨간 「핵심」 검은 상자) · ⌘⇧K (한글엔 없음)"><span class="qk">핵심</span></button>
+      <button class="tb" data-cmd="hr" title="구분선 · 빈 줄에 --- 치고 Enter">구분선</button>
+      <span class="sep"></span>
+      <button class="tb" id="cmtBtn" title="글 전체에 댓글(고칠 지시) — 부분 댓글은 글자를 드래그한 뒤 「💬 댓글」 또는 ⌘⇧M. 「저장하고 PDF」 때 다듬기에 반영돼요">💬</button>
+      <button class="tb jxtool" id="mapBtn" hidden title="큰 제목 → 소제목 → 목록 줄을 마인드맵으로 보기(읽기) · 가지를 누르면 그 자리로 (Xmind 개요↔지도)">지도로 보기</button>
+      <span class="grow"></span>
+      <span class="jxseg jxtool" id="modeSeg" hidden role="group" aria-label="문서·화이트보드 전환"><button type="button" data-mode="doc" class="on" title="문서 (AFFiNE 문서 모드)">문서</button><button type="button" data-mode="board" title="화이트보드 — 구역이 카드로 (AFFiNE 무한 캔버스)">화이트보드</button></span>
+      <button class="btn ghost" id="cmtNav" hidden title="누를 때마다 다음 댓글로">댓글</button>
+      <span class="status count" id="count"></span><span class="status" id="status"></span>
+      <button class="btn ghost" id="focusBtn" title="집중 모드 (⌘. · Esc로 나가기)">집중</button>
+      <button class="btn ghost" id="trashBtn" title="휴지통(지식작업실/원본/.휴지통)으로 옮겨요">지우기</button>
+      <button class="btn" id="viewPdf">PDF 보기</button>
+      <button class="btn primary" id="saveBtn">저장하고 PDF</button>
+    </div>
+    <div class="scroll" id="scroll"></div>
+  </main>
+</div>
+<dialog class="cam" id="cam" aria-label="필사 찍기">
+  <div class="cam-top"><b>필사 찍기</b><span id="camInfo">노트를 화면에 맞추고 찍기(스페이스)를 누르세요. 여러 장 찍어도 돼요.</span><button class="btn ghost cam-x" id="camClose">닫기</button></div>
+  <div class="cam-stage"><video id="camVideo" autoplay playsinline muted poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="></video><div class="cam-msg" id="camMsg" hidden></div></div>
+  <div class="cam-strip" id="camStrip"></div>
+  <div class="cam-bot"><span class="status" id="camCount">0장</span><span class="grow"></span><button class="shutter" id="camShoot">찍기</button><span class="grow"></span><button class="btn primary" id="camDone" disabled>완료</button></div>
+</dialog>
+<div class="toast" id="toast"></div>
+<aside class="slog" id="slog" hidden aria-label="동기화 기록"><div class="sl-top"><b>🔄 동기화 기록</b><button class="btn ghost" id="slRe" type="button">새로고침</button><button class="btn primary" id="slX" type="button">닫기</button></div><div class="sl-st" id="slSt">불러오는 중…</div><ol class="sl-list" id="slList"></ol></aside>
+<div class="ctx" id="ctx" hidden role="menu" aria-label="글 메뉴"><div class="who" id="ctxWho"></div><button type="button" role="menuitem" data-act="rename">이름 바꾸기</button><button type="button" role="menuitem" class="danger" data-act="del">지우기</button></div>
+<aside class="slog" id="trashPanel" hidden aria-label="휴지통"><div class="sl-top"><b>휴지통</b><button class="btn primary" id="trX" type="button">닫기</button></div><div class="sl-st" id="trSt">지운 글은 여기 모여요. 「되살리기」를 누르면 원래 칸으로 돌아가요(같은 이름이 있으면 「이름 (되살림)」).</div><ol class="sl-list" id="trList"></ol></aside>
+<button class="cmtPop" id="cmtPop" hidden title="고른 글자에 고칠 지시 달기 (⌘⇧M)">💬 댓글</button>
+<div class="cmtSheet" id="cmtSheet" hidden></div>
+
+<script>
+const COLOR = {gongsik:['var(--g)','var(--g-soft)'], jeongri:['var(--j)','var(--j-soft)'], gasul:['var(--h)','var(--h-soft)'], mind:['var(--m)','var(--m-soft)']};
+const NAME = {gongsik:'공략집', jeongri:'지식정리본', gasul:'업무일지', mind:'마인드맵'};
+const KICK = {gongsik:'MY PLAYBOOK · 공략집', jeongri:'KNOWLEDGE NOTE · 지식정리본', gasul:'WORK LOG · 업무일지', mind:'MIND MAP · 마인드맵'};
+const ORDER = ['gongsik','jeongri','gasul','mind'];   // 11/20 네 번째 칸 마인드맵
+const SHORT = {gongsik:'공략집', jeongri:'정리본', gasul:'업무일지', mind:'마인드맵'};
+const LEDGER = '가설 장부';
+const MOTTO = '이 메뉴얼은 까먹는 나를 위한 지침서다. 새롭게 배우거나 체화된 내용은 최신화한다.';   // 나만의 공식집 고정 문구 (11/14 사장님) — server.py MOTTO와 같게
+let data = null, tabs = [], cur = null, seq = 0;
+const PHONE = typeof window.LocalApi === 'function';   // 11/15 폰앱으로 열렸나 (맥 서버판은 false — 그대로)
+if (PHONE) document.documentElement.classList.add('phone');
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const store = {get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
+function toast(t,ms=2200){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),ms)}
+async function api(path, body){
+  if (PHONE) return window.LocalApi(path, body);   // 11/15 폰앱: 서버 대신 폰 안 저장소(IndexedDB) — 폰앱/phone.js
+  const r = await fetch(path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)} : {});
+  return r.json();
+}
+
+/* 날짜 */
+const WD = '일월화수목금토';
+const p2 = n => String(n).padStart(2,'0');
+function today(){ const d=new Date(); return {ym:`${d.getFullYear()}-${p2(d.getMonth()+1)}`, key:`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`, label:`${d.getMonth()+1}/${d.getDate()} (${WD[d.getDay()]})`, d}; }
+const isMonth = n => /^\d{4}-\d{2}$/.test(n||'');
+function pretty(c, n){ if (c==='gasul' && isMonth(n)) return `${+n.slice(0,4)}년 ${+n.slice(5)}월 일지`; return n||'제목 없음'; }
+const fixedName = t => t.c==='gasul';  // 가설일지 칸은 이름을 바꾸지 않는다(월 파일·장부)
+
+/* 목록 */
+async function loadList(){ data = await api('/api/list'); await loadTrash(); renderSide(); }
+/* 11/21 휴지통 — 맥: /api/trashlist(원본/<칸>/.휴지통) · 폰: phone.js(맥 휴지통 거울 + 이 폰에서 지운 것) */
+let trashData = null;
+async function loadTrash(){ try{ const r = await api('/api/trashlist'); if (r && r.items){ trashData = r; showRevived(); if (!$('#trashPanel').hidden) trRender(); } }catch(e){} }
+function monthDays(){ const m = data && data.gasul.docs.find(d=>d.name===today().ym); return m ? m.days : 0; }
+function renderSide(hits){
+  const box = $('#cols'); let h = '';
+  $('#todayLbl').textContent = today().label;
+  if (hits){
+    h += `<div class="col"><div class="col-h">찾은 글 <span class="n">${hits.length}</span></div>`;
+    h += hits.length ? hits.map(x=>rowOf(x.c, x.name, `<button class="item hit" style="--c:${COLOR[x.c][0]}" data-open="${x.c}|${esc(x.name)}">${esc(pretty(x.c,x.name))}<small>${NAME[x.c]}${x.snip?': '+esc(x.snip):''}</small></button>`)).join('') : '<div class="empty">없어요</div>';
+    box.innerHTML = h + '</div>'; return;
+  }
+  for (const c of ORDER){
+    const d = data[c];
+    const cnt = c==='gasul' ? d.docs.filter(x=>!x.ledger).length : d.docs.length;
+    h += `<div class="col" style="--c:${COLOR[c][0]}"><div class="col-h">${NAME[c]} <span class="n">${cnt}</span><button class="add" data-new="${c}" title="${c==='gasul'?'오늘 일지':c==='mind'?'새 마인드맵':'새 글'}">+</button></div>`;
+    if (!d.docs.length) h += `<div class="empty">아직 글이 없어요. + 로 시작</div>`;
+    for (const x of d.docs){
+      const on = cur && cur.c===c && cur.saved===x.name ? ' on' : '';
+      const sm = c==='gasul' ? (x.ledger ? '클로드가 채우는 표' : `${x.days}일 기록, ${x.updated.slice(5)}`) : `${x.updated}${x.pdf?'':', PDF 없음'}`;
+      h += rowOf(c, x.name, `<button class="item${on}" data-open="${c}|${esc(x.name)}">${esc(pretty(c,x.name))}<small>${sm}</small></button>`);
+    }
+    if (d.pdfOnly.length){
+      h += `<div class="sub">PDF만 있는 것 (보기만)</div>`;
+      h += d.pdfOnly.map(n=>`<button class="item pdfonly" data-pdf="${c}|${esc(n)}">${esc(n)}</button>`).join('');
+    }
+    h += '</div>';
+  }
+  const tn = trashData ? trashData.items.length : 0;
+  h += `<button class="trashLink" type="button" data-trash="1" title="지운 글 보기 · 되살리기"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9M6.6 7v4.5M9.4 7v4.5"/></svg>휴지통 <span class="n">(${tn})</span></button>`;
+  box.innerHTML = h;
+}
+const TRASH_SVG = '<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9M6.6 7v4.5M9.4 7v4.5"/></svg>';
+function rowOf(c, n, inner){ return `<div class="row">${inner}<button class="rowDel" type="button" data-del="${c}|${esc(n)}" title="지우기 (휴지통으로)" aria-label="${esc(pretty(c,n))} 지우기">${TRASH_SVG}</button></div>`; }
+let qT; $('#q').addEventListener('input', e=>{clearTimeout(qT); const v=e.target.value.trim(); qT=setTimeout(async()=>{ v ? renderSide(await api('/api/search?q='+encodeURIComponent(v))) : renderSide(); },180)});
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-new],[data-open],[data-pdf],[data-today]'); if(!b || !b.closest('.side,.welcome')) return;
+  if (b.dataset.today) openToday();
+  else if (b.dataset.new) b.dataset.new==='gasul' ? openToday() : newDoc(b.dataset.new);
+  else if (b.dataset.open){ const [c,...n]=b.dataset.open.split('|'); openDoc(c, n.join('|')); }
+  else if (b.dataset.pdf){ const [c,...n]=b.dataset.pdf.split('|'); PHONE ? window.LocalPdf(c, n.join('|')) : window.open('/pdf?c='+c+'&n='+encodeURIComponent(n.join('|'))); }
+  $('#app').classList.remove('menu');
+});
+document.querySelectorAll('[data-reveal]').forEach(b=>b.onclick=()=>api('/api/reveal',{c:b.dataset.reveal}));
+$('#menuBtn').onclick=()=>$('#app').classList.toggle('menu');
+
+/* 탭 */
+function tabKey(t){return t.c+'|'+(t.saved||'#'+t.id)}
+function draftKey(t){return 'draft:'+tabKey(t)}
+function draftOld(t){ return !!(t.draft && t.saved && (!t.draft.ver || t.draft.ver!==t.ver)); }   // 11/17 사고: 옛 판에서 쓰다 닫힌 초안을 새 판 위에 불러와 저장 → 맥 글이 충돌 사본 없이 덮임
+function persistTabs(){ store.set('tabs', tabs.filter(t=>t.saved).map(t=>[t.c,t.saved])); store.set('cur', cur&&cur.saved?[cur.c,cur.saved]:null); }
+function renderTabs(){
+  const el = $('#tabs');
+  el.innerHTML = '<button class="tb menu-btn" id="menuBtn" aria-label="목록 열기"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>' + tabs.map(t=>`<div class="tab${t===cur?' on':''}" data-id="${t.id}" style="--c:${COLOR[t.c][0]}" tabindex="0"><span class="t">${esc(pretty(t.c,t.name))}</span>${t.dirty?'<span class="dirty">저장 전</span>':''}<button class="x" data-close="${t.id}" title="닫기">×</button></div>`).join('') + '<button class="tb slBtn" id="slBtn" type="button" title="어느 기기에서 언제 무엇이 올라가고 내려왔는지 · 충돌·실패">🔄 동기화 기록</button>';
+  $('#menuBtn').onclick=()=>$('#app').classList.toggle('menu');
+}
+$('#tabs').addEventListener('click', e=>{
+  const x = e.target.closest('[data-close]'); if (x){ e.stopPropagation(); return closeTab(+x.dataset.close); }
+  const t = e.target.closest('.tab'); if (t) show(tabs.find(z=>z.id==t.dataset.id));
+});
+$('#tabs').addEventListener('keydown', e=>{ const t=e.target.closest('.tab'); if(t && (e.key==='Enter'||e.key===' ') && e.target===t){ e.preventDefault(); show(tabs.find(z=>z.id==t.dataset.id)); } });
+function closeTab(id){
+  const t = tabs.find(z=>z.id===id); if(!t) return;
+  syncCur();
+  if (t.dirty && !confirm(`「${pretty(t.c,t.name)}」 저장 안 한 내용이 있어요. 그래도 닫을까요?`)) return;
+  store.del(draftKey(t));
+  const i = tabs.indexOf(t); tabs.splice(i,1);
+  if (cur===t) cur=null, show(tabs[i]||tabs[i-1]||null); else renderTabs();
+  persistTabs();
+}
+async function openDoc(c, name){
+  let t = tabs.find(z=>z.c===c && z.saved===name);
+  if (!t){
+    const d = await api(`/api/doc?c=${c}&n=${encodeURIComponent(name)}`);
+    if (d.err) return toast('못 열었어요: '+d.err);
+    t = {id:++seq, c, name, saved:name, html:d.html, savedHtml:d.html, updated:d.updated, ver:d.ver, dirty:false};
+    const dr = store.get(draftKey(t)); if (dr && dr.html!==d.html) t.draft = dr;
+    tabs.push(t);
+  }
+  show(t); persistTabs(); return t;
+}
+function newDoc(c){ const t={id:++seq,c,name:'',saved:null,html:'',dirty:false,updated:null}; tabs.push(t); show(t); if(c!=='mind') setTimeout(()=>$('#title').focus(),30); }
+
+/* 가설일지: 이번 달 파일을 열고 오늘 칸에 커서 */
+async function openToday(){
+  const td = today();
+  const r = await api('/api/today', {c:'gasul', ym:td.ym});
+  if (!r.ok) return toast(r.err||'일지를 못 열었어요');
+  await loadList();
+  const t = await openDoc('gasul', td.ym);
+  if (t) focusToday();
+}
+function ensureToday(t){  // 11/14 아래로 이어 쓰기: 이번 달 일지를 열면 오늘 칸이 맨 아래에 (이미 있으면 그대로)
+  const td = today(), ed = $('#ed');
+  if (!ed || t.c!=='gasul' || t.saved!==td.ym) return false;
+  if (ed.querySelector(`h2[data-day="${td.key}"]`)) return false;
+  const h = document.createElement('h2'); h.dataset.day = td.key; h.textContent = td.label;
+  const p = document.createElement('p'); p.appendChild(document.createElement('br'));
+  ed.append(h, p); t.html = edHtml();  // 비어 있는 오늘 칸만으로는 '저장 안 됨' 표시 안 함
+  return true;
+}
+function focusToday(){
+  const ed = $('#ed'); if (!ed) return;
+  const h = ed.querySelector(`h2[data-day="${today().key}"]`); if (!h) return;
+  let last = h.nextElementSibling;   // 오늘 칸의 마지막 줄 끝으로
+  while (last && last.nextElementSibling && last.nextElementSibling.tagName!=='H2') last = last.nextElementSibling;
+  if (!last || last.tagName==='H2'){ last = document.createElement('p'); last.appendChild(document.createElement('br')); h.after(last); }
+  ed.focus();
+  const r = document.createRange(); r.selectNodeContents(last); r.collapse(false);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  const sc = $('#scroll'); const down=()=>sc.scrollTo({top:sc.scrollHeight, behavior:'instant'}); down(); requestAnimationFrame(down);
+}
+
+/* 편집 화면 */
+function syncCur(){ if(cur&&cur.c==='mind'&&window.Mind&&Mind.on()){ cur.html=Mind.html(); cur.center=Mind.centerText(); cur.blank=Mind.isBlank(); if($('#title')) cur.name=$('#title').value; return; } if(!cur||!$('#ed')) return; cmtFlush(); cur.html=edHtml(); if(!fixedName(cur)) cur.name=$('#title').value; }
+function show(t){
+  syncCur();
+  if (window.JXBoard) JXBoard.close();   // 11/21 화이트보드는 탭을 바꾸면 닫고, 다시 오면 t.boardMode 로 다시 엶
+  if (window.Mind && Mind.on()){ const ms=Mind.unmount(); if(ms && mindTab){ mindTab.mview=ms.view; mindTab.mmode=ms.mode; } mindTab=null; }   // 11/20 마인드맵 칸을 떠날 때 보던 자리·보기(지도/개요) 기억
+  cur = t; renderTabs(); renderSide(); persistTabs();
+  $('#app').classList.toggle('mindmode', !!(t && t.c==='mind'));
+  const sc = $('#scroll');
+  if (!t){ $('#bar').hidden=true; sc.innerHTML = welcome(); document.documentElement.style.setProperty('--acc','var(--g)'); return; }
+  document.documentElement.style.setProperty('--acc', COLOR[t.c][0]);
+  document.documentElement.style.setProperty('--soft', COLOR[t.c][1]);
+  $('#bar').hidden=false; paintMode(t);
+  if (t.c==='mind') return showMind(t);
+  const fixed = fixedName(t), journal = t.c==='gasul' && isMonth(t.saved);
+  const [dcm, body0] = splitDoc(t.html); t.docCmts = dcm; const [bj, body] = JXBoard.cut(body0); t.board = bj;   // 11/21 화이트보드 꼬리는 #ed 밖(t.board) cmtNew = cmtEdit = cmtActive = null; cmtSheetClose();
+  const hint = journal ? '<p class="hint">형식 없이 막 쓰세요. 쓰는 대로 자동 저장돼요. 업무만 — 개인 깨달음은 「깨달음기록」.</p>'
+             : (t.c==='gasul' ? '<p class="hint">클로드가 「일지 정리해」 때 채워요. 검증됨 = 다른 날 2번 이상 같은 결과 + 사장님 「응」.</p>' : '');
+  sc.innerHTML = (t.chg?outsideBanner(t):'') + (t.draft?`<div class="banner"><span class="grow">저장 안 하고 닫힌 내용이 있어요 (${t.draft.at}).${draftOld(t)?' <b>그 뒤에 이 글이 바뀌었어요</b> — 불러와서 저장하면 지금 글과 내 것을 한 판으로 합쳐요(빠지는 글 없음).':''}</span><button class="btn" id="dUse">그걸로 불러오기</button><button class="btn" id="dDrop">버리기</button></div>`:'') +
+    `<div class="paper"><div class="stamp">CONFIDENTIAL</div><div class="kicker">${KICK[t.c]}${t.saved?'':' · 새 글'}</div>
+     <textarea class="title" id="title" placeholder="제목" rows="1"${fixed?' readonly tabindex="-1"':''}>${esc(fixed?pretty(t.c,t.name):t.name)}</textarea>${hint}
+     ${t.c==='gongsik'?`<p class="motto" title="공략집마다 고정으로 들어가요 (PDF 표지에도)">${MOTTO}</p>`:''}
+     <div class="docCmts" id="docCmts"></div>
+     <div id="ed" class="doc${journal?' journal':''}" contenteditable="true" spellcheck="false">${body}</div></div>`;
+  if (t.draft){
+    $('#dUse').onclick=()=>{ if (draftOld(t)) t.ver = t.draft.ver || 'draft-old'; loadEd(t, t.draft.html); if(!fixed) $('#title').value=t.draft.name||t.name; t.draft=null; markDirty(); show(t); };
+    $('#dDrop').onclick=()=>{ store.del(draftKey(t)); t.draft=null; show(t); };
+  }
+  $('#ed').addEventListener('input', markDirty);
+  $('#ed').addEventListener('beforeinput', guardMerge);
+  $('#ed').addEventListener('mousedown', gapClick);
+  $('#ed').addEventListener('keydown', enterBefore);
+  $('#ed').addEventListener('keydown', edKeys);
+  $('#ed').addEventListener('input', e=>{ mdShortcut(e); clearTimeout(countChars._t); countChars._t=setTimeout(countChars,300); });
+  countChars(); if(cleanSpans()|dropOldMotto(t)) markDirty();
+  placeMoves(); requestAnimationFrame(placeMoves); document.fonts && document.fonts.ready.then(placeMoves);
+  renderCmts(); requestAnimationFrame(renderCmts); document.fonts && document.fonts.ready.then(renderCmts);
+  const fit=()=>{ const ta=$('#title'); ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; }; fit(); requestAnimationFrame(fit);
+  if (!fixed) $('#title').addEventListener('input', ()=>{ $('#title').value=$('#title').value.replace(/\n/g,' '); fit(); markDirty(); cur.name=$('#title').value; renderTabs(); });
+  $('#title').addEventListener('keydown', e=>{ if(e.key==='Enter'){e.preventDefault(); $('#ed').focus();} });
+  const pdfless = t.c==='gasul' || PHONE;   // 11/15 폰: PDF 보기는 늘 보임(일지는 밤마다 PDF), 공식집·정리본은 「저장하고 PDF」(맥이 받으면 다듬고 PDF)
+  $('#viewPdf').hidden = PHONE ? false : pdfless; $('#saveBtn').textContent = (PHONE ? t.c==='gasul' : pdfless) ? '저장' : '저장하고 PDF';
+  setStatus(t.dirty ? '저장 안 됨' : t.updated ? `${t.updated.slice(5)} 저장됨` : '아직 저장 안 됨');
+  $('#viewPdf').disabled = !t.saved; $('#trashBtn').disabled = !t.saved;
+  if (ensureToday(t)) focusToday();
+  if (t.pendMark != null){ const o=t.pendMark; t.pendMark=null; applyMarks(o); }
+  JXB.attach();   // 11/21 마인드맵 블록 그리기·⋮⋮ 손잡이
+  if (t.boardMode && JXB.ON(t.c)) JXBoard.open(t);
+}
+/* 11/21 공략집: 문서 ↔ 화이트보드 전환(AFFiNE 우상단 전환) · 지도로 보기 — blocks.js·board.js */
+function paintMode(t){ const on=!!(t && JXB.ON(t.c)); document.querySelectorAll('.jxtool').forEach(x=>x.hidden=!on); document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on', (b.dataset.mode==='board')===!!(t&&t.boardMode))); }
+$('#modeSeg').addEventListener('click', e=>{ const b=e.target.closest('[data-mode]'); if(!b||!cur||!JXB.ON(cur.c)||!$('#ed')) return; const want=b.dataset.mode==='board'; if(want===!!cur.boardMode) return;
+  cur.boardMode=want; if(want){ JXB.deactivate(); JXBoard.open(cur); } else { JXBoard.close(); JXB.attach(); placeMoves(); renderCmts(); } paintMode(cur); });
+$('#mapBtn').onclick=()=>JXB.openDocMap();
+/* 11/20 마인드맵 칸 — 편집은 mind.js(Mind.mount). 저장·초안·충돌·자동 새로고침은 다른 칸과 같은 길(api /api/save·draftKey·checkOutside) */
+let mindTab=null;
+function showMind(t){
+  mindTab=t;
+  const sc=$('#scroll');
+  sc.innerHTML = (t.chg?outsideBanner(t):'') + (t.draft?`<div class="banner"><span class="grow">저장 안 하고 닫힌 내용이 있어요 (${t.draft.at}).${draftOld(t)?' <b>그 뒤에 이 마인드맵이 바뀌었어요</b> — 불러와서 저장하면 지금 것과 내 것을 한 판으로 합쳐요(빠지는 주제 없음).':''}</span><button class="btn" id="dUse">그걸로 불러오기</button><button class="btn" id="dDrop">버리기</button></div>`:'') +
+    `<div class="mwrap"><textarea class="mtitle" id="title" rows="1" placeholder="제목 (비우면 중심 주제가 제목)" spellcheck="false">${esc(t.name||'')}</textarea><div class="mhost" id="mhost"></div></div>`;
+  if (t.draft){
+    $('#dUse').onclick=()=>{ if (draftOld(t)) t.ver = t.draft.ver || 'draft-old'; t.html=t.draft.html; t.name=t.draft.name||t.name; t.draft=null; t.mview=null; cur=null; show(t); markDirty(); };
+    $('#dDrop').onclick=()=>{ store.del(draftKey(t)); t.draft=null; cur=null; show(t); };
+  }
+  Mind.mount($('#mhost'), t.html, {view:t.mview||null, mode:t.mmode||(PHONE&&innerWidth<600?'outline':'map'), onChange:()=>{ if(cur===t) markDirty(); }, onMode:m=>{ t.mmode=m; }});
+  const ti=$('#title');
+  ti.addEventListener('input', ()=>{ ti.value=ti.value.replace(/\n/g,' '); t.name=ti.value; markDirty(); renderTabs(); });
+  ti.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); Mind.focus(); } });
+  $('#viewPdf').hidden=false; $('#saveBtn').textContent='저장하고 PDF';
+  setStatus(t.dirty ? '저장 안 됨' : t.updated ? `${t.updated.slice(5)} 저장됨` : '아직 저장 안 됨');
+  $('#viewPdf').disabled = !t.saved; $('#trashBtn').disabled = !t.saved;
+  if (!t.saved && !t.dirty) setTimeout(()=>Mind.focus(), 30);
+  if (t.pendMark != null){ const o=t.pendMark; t.pendMark=null; requestAnimationFrame(()=>Mind.flash(o)); }   // 바깥에서 바뀐 주제 노랗게
+}
+function mindName(t){ return (t.name||'').trim() || (t.center||'').trim(); }
+function greet(){ const h=new Date().getHours(); return h<6?'늦은 밤이에요':h<12?'좋은 아침이에요':h<18?'좋은 오후예요':'수고 많으셨어요'; }
+function welcome(){
+  const td = today(), n = monthDays();
+  const all = ORDER.flatMap(c=>data[c].docs.filter(d=>!d.ledger).map(d=>({...d,c}))).sort((a,b)=>b.t-a.t).slice(0,5);
+  return `<div class="welcome"><p class="hi">${td.d.getMonth()+1}월 ${td.d.getDate()}일 ${WD[td.d.getDay()]}요일, ${greet()}</p><h1>오늘은 뭘 해 봤나요?</h1>
+  <button class="big" data-today="1"><b>오늘 일지 쓰기</b><span>${n?`이번 달 ${n}일 썼어요. `:''}잘된 이유, 안된 이유, 「그럼 이건가」를 형식 없이.</span></button>
+  <div class="three">
+   <button class="card" style="--c:var(--g)" data-new="gongsik"><b>새 공략 쓰기</b><span>나이·컨디션이 바뀌어도 그대로 복제할 내 방법</span></button>
+   <button class="card" style="--c:var(--j)" data-new="jeongri"><b>새 정리 쓰기</b><span>읽다가 건진 문장을 내 것으로</span></button>
+   ${data.gasul.docs.some(d=>d.ledger) ? `<button class="card" style="--c:var(--h)" data-open="gasul|${LEDGER}"><b>가설 장부 보기</b><span>일지에서 뽑은 가설과 상태</span></button>` : ''}
+   <button class="card" style="--c:var(--m)" data-new="mind"><b>새 마인드맵</b><span>가운데 주제 하나에서 가지를 뻗어 생각 펼치기</span></button>
+  </div>
+  ${all.length?`<div class="recent"><h2>최근에 쓴 것</h2>${all.map(d=>`<button style="--c:${COLOR[d.c][0]}" data-open="${d.c}|${esc(d.name)}"><em>${SHORT[d.c]}</em>${esc(pretty(d.c,d.name))}<small>${d.updated.slice(5)}</small></button>`).join('')}</div>`:''}
+  <div class="rules">업무일지를 쓰고 「일지 정리해」라고 하면 클로드가 가설을 뽑아 장부에 올려요. 다른 날 두 번 넘게 같은 결과가 나오고 사장님이 「응」 하면 공식집으로 옮겨요.</div>
+  </div>`;
+}
+let dT, aT;
+/* 11/15 큰 제목 순서 바꾸기: 제목부터 다음 큰 제목 앞까지를 한 덩어리로 위·아래 */
+function sectionOf(h){ const a=[h]; let n=h.nextElementSibling; while(n && n.tagName!=='H2'){ a.push(n); n=n.nextElementSibling; } return a; }
+function moveSection(h, d){
+  const ed=$('#ed'), hs=[...ed.querySelectorAll(':scope > h2')], i=hs.indexOf(h), o=hs[i+d]; if(!o) return;
+  if(d<0){ for(const el of sectionOf(h)) o.before(el); }            // 내 덩어리를 윗 제목 앞으로
+  else   { for(const el of sectionOf(o)) h.before(el); }            // 아랫 덩어리를 내 제목 앞으로
+  markDirty(); placeMoves(); clearTimeout(placeMoves._t);
+  if (h.animate){ const hl=getComputedStyle(document.documentElement).getPropertyValue('--soft').trim()||'#f6d860';   // 11/15 클래스 대신 애니메이션만(저장본에 class가 안 남게)
+    h.animate([{background:hl},{background:'transparent'}],{duration:1200,easing:'ease-out'}); }
+  h.scrollIntoView({block:'center', behavior:'smooth'});
+}
+function placeMoves(){
+  const pa=$('.paper'), ed=$('#ed'); if(!pa||!ed) return;
+  pa.querySelectorAll('.mv').forEach(x=>x.remove());
+  if (ed.classList.contains('journal')) return;
+  const hs=[...ed.querySelectorAll(':scope > h2')]; if(hs.length<2) return;
+  const pr=pa.getBoundingClientRect();
+  hs.forEach((h,i)=>{
+    const r=h.getBoundingClientRect(), box=document.createElement('div'); box.className='mv';
+    box.style.top=(r.top-pr.top + Math.max(0,(r.height-47)/2))+'px';
+    const mk=(txt,d,tip)=>{ const b=document.createElement('button'); b.type='button'; b.textContent=txt; b.title=tip; b.tabIndex=-1;
+      b.disabled = !hs[i+d]; b.addEventListener('mousedown', e=>e.preventDefault()); b.addEventListener('click', ()=>moveSection(h,d)); return b; };
+    box.append(mk('▲',-1,'이 큰 제목 구역을 위로'), mk('▼',1,'이 큰 제목 구역을 아래로')); pa.append(box);
+  });
+}
+window.addEventListener('resize', ()=>{ clearTimeout(placeMoves._r); placeMoves._r=setTimeout(()=>{ placeMoves(); renderCmts(); },150); });
+function markDirty(){
+  if(!cur) return; clearMarks(); clearTimeout(placeMoves._t); placeMoves._t=setTimeout(placeMoves,250); clearTimeout(renderCmts._t); renderCmts._t=setTimeout(renderCmts,250); cleanSpans(); cur.dirty=true; renderTabs(); setStatus('저장 안 됨');
+  clearTimeout(dT); dT=setTimeout(()=>{ if(cur&&($('#ed')||(cur.c==='mind'&&window.Mind&&Mind.on()))) store.set(draftKey(cur), {html:edHtml(), name:$('#title').value, at:new Date().toLocaleString('ko-KR'), ver:cur.ver||''}); }, 500);   // 11/17 초안에 그때 판(ver)도 — 낡은 초안으로 새 판을 덮지 않게
+  if (cur.c==='gasul' && cur.saved){ clearTimeout(aT); aT=setTimeout(()=>save(true), 1200); }  // 일지는 자동 저장
+  if (cur.c==='mind'){ clearTimeout(aT); aT=setTimeout(()=>save(true), 1500); }  // 11/20 마인드맵도 자동 저장(PDF는 「저장하고 PDF」 때만)
+}
+function setStatus(s, cls=''){ const el=$('#status'); el.textContent=s; el.className='status '+cls; }
+
+/* 쓰는 동안 둘레가 물러남 · 집중 모드 */
+document.addEventListener('keydown', e=>{ if(e.target.closest && e.target.closest('#ed') && !e.metaKey && !e.ctrlKey && matchMedia('(hover:hover)').matches) $('#app').classList.add('typing'); });   // 11/15 터치 폰은 흐려지면 되돌릴 마우스가 없어 끔
+let mx=0,my=0; document.addEventListener('mousemove', e=>{ if(Math.abs(e.clientX-mx)+Math.abs(e.clientY-my)>8) $('#app').classList.remove('typing'); mx=e.clientX; my=e.clientY; });
+function setFocus(on){ $('#app').classList.toggle('focus', on); $('#focusBtn').textContent = on ? '집중 끄기' : '집중'; store.set('focus', on); }
+$('#focusBtn').onclick=()=>setFocus(!$('#app').classList.contains('focus'));
+
+/* 지울 때 아래 칸이 딸려 올라오지 않게 (11/14) */
+const BLK='p,h1,h2,h3,h4,li,blockquote,figure,pre';
+function leafOf(n){ const ed=$('#ed'); if(!n) return null; const el=n.nodeType===1?n:n.parentElement; const b=el&&el.closest(BLK); return b&&ed.contains(b)&&b!==ed?b:null; }
+function leaves(){ return [...$('#ed').querySelectorAll(BLK)].filter(b=>!b.querySelector(BLK)&&!b.closest('.mindmap,.pt-blk-wrap')); }   // 11/21 패턴 블록 속 줄도 글 줄이 아님(칸은 pattern.js 몫)
+function isAtom(el){ return !!(el && el.classList && (el.classList.contains('mindmap')||el.classList.contains('pt-blk-wrap'))); }   // 통째 블록(마인드맵·패턴) — 지우기로 딸려 들어가지 않음
+function inPt(n){ return !!(window.JXP && JXP.inPt(n)); }   // 11/21 마인드맵 블록 속 목록은 글 줄이 아님
+function sib(b,d){ const L=leaves(), i=L.indexOf(b); return i<0?null:L[i+d]||null; }
+function isEmpty(b){ return !b.textContent.replace(/​/g,'').trim() && !b.querySelector('img,hr,video'); }
+function atEdge(b,node,off,side){ const r=document.createRange(); r.selectNodeContents(b); if(side==='start') r.setEnd(node,off); else r.setStart(node,off);
+  const f=r.cloneContents(); return !f.textContent.replace(/​/g,'') && !f.querySelector('img,hr,video'); }
+function topOf(b){ return b&&b.closest('#ed > *'); }
+function firstLeaf(t){ return BLK.split(',').includes(t.tagName.toLowerCase())&&!t.querySelector(BLK)?t:leaves().find(x=>t.contains(x)); }
+function lastLeaf(t){ return BLK.split(',').includes(t.tagName.toLowerCase())&&!t.querySelector(BLK)?t:leaves().filter(x=>t.contains(x)).pop(); }
+function sameKind(a,b){ return a.tagName===b.tagName && a.parentNode===b.parentNode; }
+let gBusy=false;
+function delRange(sn,so,en,eo){ const s=getSelection(), r=document.createRange(); r.setStart(sn,so); r.setEnd(en,eo); if(r.collapsed) return; s.removeAllRanges(); s.addRange(r); gBusy=true; try{ document.execCommand('delete'); } finally{ gBusy=false; } }
+function guardMerge(e){
+  if (JXB.inMind(e.target) || inPt(e.target)) return;
+  const t=e.inputType||''; const del=t.startsWith('delete'); const typ=(t==='insertText'||t==='insertReplacementText');
+  if(gBusy||(!del&&!typ)) return;
+  const s=getSelection(); if(!s.rangeCount) return; const r=s.getRangeAt(0);
+  if(r.collapsed){
+    if(t!=='deleteContentBackward'&&t!=='deleteContentForward') return;
+    const b=leafOf(r.startContainer); if(!b) return;
+    const top=topOf(b);
+    if(t==='deleteContentBackward' && atEdge(b,r.startContainer,r.startOffset,'start') && top && b===firstLeaf(top) && isAtom(top.previousElementSibling)){   // 11/21 위가 마인드맵·패턴 블록: 지도를 지우지 않음(빈 줄만 지움 — Notion)
+      e.preventDefault(); if(isEmpty(b) && top.tagName==='P'){ const n=sib(b,1); top.remove(); if(n) caretIn(n); markDirty(); } return; }
+    if(t==='deleteContentForward' && atEdge(b,r.startContainer,r.startOffset,'end') && top && b===lastLeaf(top) && isAtom(top.nextElementSibling)){ e.preventDefault(); if(isEmpty(b) && top.tagName==='P'){ top.remove(); markDirty(); } return; }
+    if(t==='deleteContentBackward' && atEdge(b,r.startContainer,r.startOffset,'start')){
+      const hr=top&&top.previousElementSibling; if(hr&&hr.tagName==='HR'&&b===firstLeaf(top)){ e.preventDefault(); hr.remove(); markDirty(); return; }
+      if(isEmpty(b)){                                                          // 빈 줄은 그냥 지워짐
+        // 11/14: 맨 위 빈 줄은 앞에 합칠 줄이 없어 브라우저가 안 지움 → 직접 지우고 다음 줄로
+        const n=sib(b,1);
+        if(!sib(b,-1) && n && b.parentNode===$('#ed')){ e.preventDefault(); b.remove(); caretIn(n); markDirty(); }
+        return;
+      }
+      if(/^(H2|H3|H4|BLOCKQUOTE)$/.test(b.tagName)){ e.preventDefault(); block('p'); markDirty(); return; }   // 제목·핵심 → 본문으로 풀기
+      if(b.tagName==='LI' && !b.previousElementSibling && b.parentNode.parentNode===$('#ed')){ e.preventDefault(); const L=b.parentNode, p=document.createElement('p'); p.append(...b.childNodes); if(!p.firstChild) p.innerHTML='<br>'; L.before(p); b.remove(); if(!L.children.length) L.remove(); caretIn(p); markDirty(); return; } // 목록 첫 줄 → 본문
+      const p=sib(b,-1); if(p && /^(H2|H3|H4|BLOCKQUOTE)$/.test(p.tagName)) e.preventDefault();   // 제목·핵심 안으로 끌려 들어가지 않게
+    }
+    if(t==='deleteContentForward' && atEdge(b,r.startContainer,r.startOffset,'end')){
+      const hr=top&&top.nextElementSibling; if(hr&&hr.tagName==='HR'&&b===lastLeaf(top)){ e.preventDefault(); hr.remove(); markDirty(); return; }
+      const n=sib(b,1); if(!n || sameKind(n,b)) return;
+      if(isEmpty(b)){ e.preventDefault(); b.remove(); caretIn(n); markDirty(); return; }
+      if(/^(H2|H3|H4|BLOCKQUOTE)$/.test(n.tagName) || /^(H2|H3|H4|BLOCKQUOTE)$/.test(b.tagName)) e.preventDefault();
+    }
+    return;
+  }
+  const a=leafOf(r.startContainer), z=leafOf(r.endContainer); if(!a||!z||a===z) return;
+  e.preventDefault();
+  const sn=r.startContainer, so=r.startOffset, en=r.endContainer, eo=r.endOffset;
+  if(!atEdge(z,en,eo,'start')) delRange(z,0,en,eo);                          // 끝 칸은 선택된 앞부분만
+  const y=sib(z,-1);                                                         // 끝 칸 바로 앞 칸의 끝까지
+  if(y){ const yr=document.createRange(); yr.selectNodeContents(y); delRange(sn,so,yr.endContainer,yr.endOffset); }
+  const c=document.createRange(); c.setStart(sn.isConnected?sn:a,sn.isConnected?so:0); c.collapse(true); s.removeAllRanges(); s.addRange(c);
+  if(typ && e.data) document.execCommand('insertText', false, e.data);
+}
+
+/* 칸 사이 빈 곳 클릭 → 빈 줄 / 제목·핵심 맨 앞에서 Enter → 위에 빈 줄 (11/14) */
+function caretIn(el){ const r=document.createRange(); r.setStart(el,0); r.collapse(true); const s=getSelection(); s.removeAllRanges(); s.addRange(r); }
+function newLineBefore(ref){ const ed=$('#ed'); const prev=ref?ref.previousElementSibling:ed.lastElementChild;
+  if(prev && prev.tagName==='P' && isEmpty(prev)){ caretIn(prev); return; }
+  const p=document.createElement('p'); p.innerHTML='<br>'; ed.insertBefore(p, ref||null); caretIn(p); markDirty(); }
+function gapClick(e){ const ed=$('#ed'); if(e.target!==ed || e.button!==0) return;
+  const kids=[...ed.children]; if(!kids.length) return;
+  if(kids.some(k=>{const b=k.getBoundingClientRect(); return e.clientY>=b.top && e.clientY<=b.bottom;})) return; // 글 위 클릭은 그대로
+  e.preventDefault(); ed.focus();
+  newLineBefore(kids.find(k=>k.getBoundingClientRect().top>e.clientY)||null); }
+function enterBefore(e){ if(e.key!=='Enter'||e.shiftKey||e.isComposing||JXB.inMind(e.target)||inPt(e.target)) return;
+  const s=getSelection(); if(!s.rangeCount||!s.isCollapsed) return; const r=s.getRangeAt(0);
+  const b=leafOf(r.startContainer); if(!b||!/^(H1|H2|H3|H4|BLOCKQUOTE)$/.test(b.tagName)||isEmpty(b)) return;
+  if(!atEdge(b,r.startContainer,r.startOffset,'start')) return;
+  e.preventDefault(); const top=b.parentNode===$('#ed')?b:b.closest('#ed > *'); newLineBefore(top); }
+
+/* 편의 (11/14): 마크다운 바로가기 · 단축키 · Tab 들여쓰기 · 핵심 끝 Enter · 마지막 칸 아래로 · 글자 수 · 지금 칸 표시 */
+function inl(x){ return esc(x).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/==(.+?)==/g,'<mark>$1</mark>'); }
+function mdToHtml(t){
+  let out='', L=null; const close=()=>{ if(L){ out+=`</${L==='todo'?'ul':L}>`; L=null; } };
+  const open=k=>{ if(L!==k){ close(); out+= k==='todo'?'<ul class="todo">':`<${k}>`; L=k; } };
+  for(const raw of t.replace(/\r/g,'').split('\n')){
+    const l=raw.trim(); let m;
+    if(!l){ close(); continue; }
+    if(/^(-{3,}|_{3,}|\*{3,})$/.test(l)){ close(); out+='<hr>'; }
+    else if(m=l.match(/^(#{1,4})\s+(.*)/)){ close(); out+= m[1].length===1?`<h2>${inl(m[2])}</h2>`:`<h3>${inl(m[2])}</h3>`; }
+    else if(m=l.match(/^>\s?(.*)/)){ close(); out+=`<blockquote>${inl(m[1])}</blockquote>`; }
+    else if(m=l.match(/^[-*•]\s*\[( |x|X)?\]\s+(.*)/)||l.match(/^\[( |x|X)?\]\s+(.*)/)){ open('todo'); out+=`<li${m[1]&&m[1]!==' '?' class="done"':''}>${inl(m[2])}</li>`; }
+    else if(m=l.match(/^[-*•·]\s+(.*)/)){ open('ul'); out+=`<li>${inl(m[1])}</li>`; }
+    else if(m=l.match(/^\d+[.)]\s+(.*)/)){ open('ol'); out+=`<li>${inl(m[1])}</li>`; }
+    else { close(); out+=`<p>${inl(l)}</p>`; }
+  }
+  close(); return out;
+}
+const MD=[[/^#$/,'h2'],[/^#{2,3}$/,'h3'],[/^[-*•]$/,'ul'],[/^1[.)]$/,'ol'],[/^\[ ?\]$/,'todo'],[/^>$/,'quote']];
+function mdShortcut(e){
+  if(JXB.inMind(e.target)||inPt(e.target)) return;
+  if(e.inputType!=='insertText'||e.data!==' ') return;
+  const s=getSelection(); if(!s.rangeCount||!s.isCollapsed) return; const r=s.getRangeAt(0);
+  const b=leafOf(r.startContainer); if(!b||b.tagName!=='P'||b.parentNode!==$('#ed')) return;
+  const pre=document.createRange(); pre.selectNodeContents(b); pre.setEnd(r.startContainer,r.startOffset);
+  const txt=pre.toString().replace(/\u00a0/g,' '); if(!txt.endsWith(' ')) return;
+  const m=MD.find(([re])=>re.test(txt.slice(0,-1))); if(!m) return;
+  s.removeAllRanges(); s.addRange(pre); gBusy=true; try{ document.execCommand('delete'); } finally{ gBusy=false; }
+  runCmd(m[1]);
+}
+function edKeys(e){
+  if (JXB.inMind(e.target)) return;   // 11/21 마인드맵 블록 안 키는 mind.js 몫
+  const s=getSelection(), r=s.rangeCount&&s.getRangeAt(0); const b=r&&leafOf(r.startContainer);
+  const mod=e.metaKey||e.ctrlKey;
+  // 단축키 = 한컴 한글(윈도우)과 같은 자리. 맥에서는 control 키. (한컴 도움말 「단축키 일람」 11/14 확인)
+  if(inPt(e.target) && e.ctrlKey && /^(NumpadSubtract|NumpadAdd)$/.test(e.code)){ e.preventDefault(); return; }   // 11/21 패턴 칸 안: 목록 수준 바꾸기 없음(Tab이 단계)
+  if(hwpKeys(e)) return;
+  if(mod&&e.shiftKey&&!e.altKey&&e.code==='KeyM'){ e.preventDefault(); return cmtStart(s.rangeCount?s.getRangeAt(0).cloneRange():null); }   // 11/16 댓글
+  if(mod&&e.shiftKey&&!e.altKey){ const k={KeyH:'mark',KeyK:'quote'}[e.code]; if(k){ e.preventDefault(); return runCmd(k); } }   // 한글에 없는 것만 따로
+  if(e.isComposing) return;
+  // Tab: 목록 안에서 들여쓰기 / 내어쓰기, 밖에서는 칸 밖으로 안 나가게
+  if(e.key==='Tab'){ e.preventDefault(); if(b&&b.tagName==='LI'){ if(e.shiftKey) outdent(b); else { document.execCommand('indent'); fixNest(); } markDirty(); } return; }
+  if(!r||!s.isCollapsed||!b) return;
+  if(e.key==='Enter'&&!e.shiftKey){
+    // --- 치고 Enter → 구분선
+    if(b.tagName==='P'&&b.parentNode===$('#ed')&&/^(-{3,}|_{3,}|\*{3,})$/.test(b.textContent.trim())){ e.preventDefault(); const hr=document.createElement('hr'), p=document.createElement('p'); p.innerHTML='<br>'; b.replaceWith(hr); hr.after(p); caretIn(p); markDirty(); return; }
+    // 핵심·제목 끝에서 Enter → 아래에 본문 줄 (핵심 상자 안에서 줄이 늘지 않게)
+    if(/^(BLOCKQUOTE|H2|H3|H4)$/.test(b.tagName)&&atEdge(b,r.startContainer,r.startOffset,'end')&&!isEmpty(b)){ e.preventDefault(); const t=topOf(b), p=document.createElement('p'); p.innerHTML='<br>'; t.after(p); caretIn(p); markDirty(); return; }
+  }
+  // 마지막 칸이 제목·핵심·목록·구분선이면 ↓로 아래 본문 줄 만들기
+  if(e.key==='ArrowDown'&&!mod){ const ed=$('#ed'), last=ed.lastElementChild, t=topOf(b);
+    if(t&&t===last&&t.tagName!=='P'&&b===lastLeaf(t)&&atEdge(b,r.startContainer,r.startOffset,'end')){ e.preventDefault(); newLineBefore(null); } }
+}
+function keepCaret(fn){ const s=getSelection(); const k=s.rangeCount?[s.anchorNode,s.anchorOffset]:null; fn();
+  if(k&&k[0]&&k[0].isConnected){ const r=document.createRange(); r.setStart(k[0],Math.min(k[1],k[0].nodeType===3?k[0].length:k[0].childNodes.length)); r.collapse(true); s.removeAllRanges(); s.addRange(r); } }
+function outdent(li){ const L=li.parentNode, P=L.parentNode; if(!P||P.tagName!=='LI') return;   // 맨 바깥 목록은 그대로
+  keepCaret(()=>{ const rest=[]; let n=li.nextElementSibling; while(n){ rest.push(n); n=n.nextElementSibling; }
+    if(rest.length){ const sub=document.createElement(L.tagName); if(L.className) sub.className=L.className; sub.append(...rest); li.append(sub); }
+    P.after(li); if(!L.children.length) L.remove(); }); }
+function cleanSpans(){  // 크롬이 몰래 넣는 색 span 걷기 (PDF에서 형광펜으로 찍히는 사고 방지)
+  const ed=$('#ed'); if(!ed) return; ed.querySelectorAll('span.cmt[style]').forEach(sp=>sp.removeAttribute('style'));   // 11/16 댓글 span은 남김
+  const bad=[...ed.querySelectorAll('span[style]:not(.cmt):not([class*="pt-"])')].filter(sp=>{ const m=(sp.style.backgroundColor||'').match(/\d+/g); if(!m) return true; const [r,g,b]=m.map(Number); return !(r>200&&g>170&&b<160); });
+  if(bad.length) keepCaret(()=>bad.forEach(sp=>sp.replaceWith(...sp.childNodes))); return bad.length; }
+function fixNest(){  // 안쪽 목록을 바로 위 항목 안으로 (크롬은 목록 옆에 붙임)
+  const s=getSelection(); const keep=s.rangeCount?[s.anchorNode,s.anchorOffset]:null;
+  $('#ed').querySelectorAll('ol > ol, ol > ul, ul > ul, ul > ol').forEach(l=>{ const prev=l.previousElementSibling; if(prev&&prev.tagName==='LI') prev.append(l); });
+  if(keep&&keep[0]&&keep[0].isConnected){ const r=document.createRange(); r.setStart(keep[0],keep[1]); r.collapse(true); s.removeAllRanges(); s.addRange(r); }
+}
+const HWP_STYLE={Digit1:'p',Digit2:'p',Digit3:'h2',Digit4:'h3'};   // 한글 스타일 순서: 바탕글·본문·개요1·개요2
+let shape=null;
+function hwpKeys(e){
+  const c=e.ctrlKey, a=e.altKey, sh=e.shiftKey, k=e.code; const go=f=>{ e.preventDefault(); f(); return true; };
+  if(c&&!sh&&HWP_STYLE[k]) return go(()=>runCmd(HWP_STYLE[k]));                                 // Ctrl+1·2 본문, Ctrl+3 큰 제목, Ctrl+4 소제목 (Ctrl+Alt+숫자도)
+  if(c&&sh&&!a&&(k==='Insert'||k==='Digit7')) return go(()=>runCmd('ol'));                         // 문단 번호 (맥은 Ctrl+Shift+7)
+  if(c&&sh&&!a&&(k==='Delete'||k==='Digit8')) return go(()=>runCmd('ul'));                         // 글머리표 (맥은 Ctrl+Shift+8 또는 fn+delete)
+  if(c&&!sh&&k==='NumpadSubtract') return go(()=>{ const b=leafOf(getSelection().anchorNode); if(b&&b.tagName==='LI'){ document.execCommand('indent'); fixNest(); markDirty(); } });   // 한 수준 증가
+  if(c&&!sh&&k==='NumpadAdd') return go(()=>{ const b=leafOf(getSelection().anchorNode); if(b&&b.tagName==='LI'){ outdent(b); markDirty(); } });   // 한 수준 감소
+  if((c&&!sh&&!a&&k==='KeyB')||(a&&sh&&k==='KeyB')) return go(()=>runCmd('bold'));                // 진하게 Ctrl+B · Alt+Shift+B
+  if((c&&!sh&&!a&&k==='KeyU')||(a&&sh&&k==='KeyU')) return go(()=>{ document.execCommand('underline'); markDirty(); });
+  if((c&&!sh&&!a&&k==='KeyI')||(a&&sh&&k==='KeyI')) return go(()=>{ document.execCommand('italic'); markDirty(); });
+  if(c&&!a&&k==='KeyZ') return go(()=>document.execCommand(sh?'redo':'undo'));                    // 되돌리기 Ctrl+Z · 다시 실행 Ctrl+Shift+Z
+  if(c&&!sh&&!a&&(k==='Minus'||e.key==='-')) return go(()=>{ document.execCommand('removeFormat'); const s=getSelection(); if(s.rangeCount&&!s.isCollapsed){ [...$('#ed').querySelectorAll('mark,b,strong,u,i,em')].filter(m=>s.containsNode(m,true)).forEach(m=>m.replaceWith(...m.childNodes)); } markDirty(); });   // 글자 스타일 해제 Ctrl+-
+  if(c&&!sh&&!a&&(k==='Enter'||k==='KeyJ')) return go(()=>{ const b=leafOf(getSelection().anchorNode), t=topOf(b)||$('#ed').lastElementChild, h=document.createElement('h2'); h.innerHTML='<br>'; t?t.after(h):$('#ed').append(h); caretIn(h); markDirty(); });   // 쪽 나누기 Ctrl+Enter = 큰 제목(PDF 새 쪽)
+  if(a&&!c&&!sh&&k==='KeyC') return go(()=>copyShape());                                            // 모양 복사 Alt+C
+  return false;
+}
+function shapeAt(n){ const el=n&&(n.nodeType===1?n:n.parentElement); if(!el) return null; const b=el.closest('h2,h3,blockquote,p,li');
+  return {blk:b&&b.tagName==='H2'?'h2':b&&b.tagName==='H3'?'h3':b&&b.tagName==='BLOCKQUOTE'?'quote':'p', mark:!!el.closest('mark'), bold:!!el.closest('b,strong')}; }
+function copyShape(){ const s=getSelection(); if(!s.rangeCount) return;
+  if(s.isCollapsed){ shape=shapeAt(s.anchorNode); toast('모양을 복사했어요. 바꿀 글자를 드래그하고 Alt+C'); return; }
+  if(!shape) return toast('먼저 커서를 본뜰 글자에 두고 Alt+C');
+  const now=shapeAt(s.anchorNode);
+  if(now.blk!==shape.blk && !(leafOf(s.anchorNode)||{}).closest?.('li')) runCmd(shape.blk);
+  if(shape.mark!==now.mark) mark();
+  if(shape.bold!==now.bold) document.execCommand('bold');
+  markDirty(); }
+function paintBar(){
+  const ed=$('#ed'); if(!ed) return; const s=getSelection(); const n=s.rangeCount&&s.anchorNode;
+  const on=new Set(); if(n&&ed.contains(n)){ const el=n.nodeType===1?n:n.parentElement;
+    const blk=el.closest('h2,h3,blockquote,li,p'); if(blk){ const t=blk.tagName; if(t==='H2')on.add('h2'); else if(t==='H3')on.add('h3'); else if(t==='BLOCKQUOTE')on.add('quote'); else if(t==='LI'){ const l=blk.parentNode; on.add(l.tagName==='OL'?'ol':l.classList.contains('todo')?'todo':'ul'); } else on.add('p'); }
+    if(el.closest('b,strong')) on.add('bold'); if(el.closest('mark')) on.add('mark'); if(el.closest('.pt-r')) on.add('red'); }
+  document.querySelectorAll('#bar [data-cmd]').forEach(x=>x.classList.toggle('on',on.has(x.dataset.cmd)));
+}
+document.addEventListener('selectionchange', ()=>{ clearTimeout(paintBar._t); paintBar._t=setTimeout(paintBar,60); });
+function dropOldMotto(t){ if(t.c!=='gongsik') return 0; const old=[...$('#ed').children].filter(x=>x.tagName==='P'&&/^이 (메뉴얼|매뉴얼)은 .*지침서/.test(x.textContent.trim())); old.forEach(x=>x.remove()); return old.length; }
+function countChars(){ const ed=$('#ed'), el=$('#count'); if(!ed||!el) return; const t=ed.innerText.replace(/\s+/g,''); el.textContent = t.length ? `글자 ${t.length.toLocaleString()}` : ''; }
+
+/* 도구 */
+function block(tag){ document.execCommand('formatBlock', false, tag); }
+function listOf(type){
+  document.execCommand(type==='ol'?'insertOrderedList':'insertUnorderedList');
+  const sel=getSelection(); const ul = sel.anchorNode && (sel.anchorNode.nodeType===1?sel.anchorNode:sel.anchorNode.parentElement).closest('ul,ol');
+  if (ul && ul.tagName==='UL') ul.classList.toggle('todo', type==='todo');
+  unwrapLists();
+}
+function unwrapLists(){   // 크롬이 <p> 안에 목록을 넣는 것 바로잡기
+  const s=getSelection(); const keep=s.rangeCount?[s.anchorNode,s.anchorOffset]:null;
+  $('#ed').querySelectorAll('p > ul, p > ol').forEach(l=>{ const p=l.parentNode; [...p.childNodes].forEach(c=>{ if(c.nodeName==='BR'||(c.nodeType===3&&!c.textContent.trim())) c.remove(); }); p.replaceWith(...p.childNodes); });
+  if(keep&&keep[0]&&keep[0].isConnected){ const r=document.createRange(); r.setStart(keep[0],Math.min(keep[1],keep[0].nodeType===3?keep[0].length:keep[0].childNodes.length)); r.collapse(true); s.removeAllRanges(); s.addRange(r); }
+}
+function mark(){
+  const sel=getSelection(); if(!sel.rangeCount||sel.isCollapsed) return toast('칠할 글자를 먼저 드래그하세요');
+  const node = sel.anchorNode.nodeType===1?sel.anchorNode:sel.anchorNode.parentElement;
+  const m = node.closest('mark');
+  if (m){ m.replaceWith(...m.childNodes); }
+  else { const r=sel.getRangeAt(0); const el=document.createElement('mark'); try{ r.surroundContents(el); }catch(e){ el.appendChild(r.extractContents()); r.insertNode(el); } }
+  markDirty();
+}
+$('#bar').addEventListener('mousedown', e=>{ if(e.target.closest('.tb')) e.preventDefault(); });
+// 11/14 버그: 커서가 본문 밖일 때 버튼을 누르면 ed.focus()가 커서를 맨 앞에 둬서 첫 줄이 바뀌고 맨 위로 튐 → 마지막 본문 커서를 기억했다가 되살림, 없으면 안내만
+let lastRange=null;
+document.addEventListener('selectionchange', ()=>{ const s=getSelection(), ed=$('#ed'); if(ed&&s.rangeCount&&ed.contains(s.getRangeAt(0).startContainer)&&!JXB.inMind(s.getRangeAt(0).startContainer.parentElement)) lastRange=s.getRangeAt(0).cloneRange(); });
+$('#bar').addEventListener('click', e=>{
+  const b=e.target.closest('[data-cmd]'), ed=$('#ed'); if(!b||!ed) return;
+  const s=getSelection(), inEd=s.rangeCount&&ed.contains(s.getRangeAt(0).startContainer);
+  if(!inEd){ if(!(lastRange&&ed.contains(lastRange.startContainer))) return toast('바꿀 줄을 먼저 클릭하세요');
+    s.removeAllRanges(); s.addRange(lastRange); }
+  const sr=s.rangeCount?s.getRangeAt(0).cloneRange():null, n0=sr&&sr.startContainer, host=n0&&(n0.nodeType===1?n0:n0.parentElement).closest('[contenteditable="true"]');
+  if(host&&host!==ed&&ed.contains(host)){ host.focus({preventScroll:true}); s.removeAllRanges(); s.addRange(sr); }   // 11/21 패턴 칸 안: 그 칸에 초점(편집기 전체 focus는 선택을 지움)
+  else ed.focus({preventScroll:true});
+  runCmd(b.dataset.cmd);
+});
+function runCmd(c){
+  if (c==='red') return window.JXP ? JXP.red() : 0;   // 11/21 빨강 강조(벽보 pt-r)
+  if (/^(h2|h3|p|ul|ol|todo|quote|hr)$/.test(c) && window.JXP && JXP.selIn()) return toast('패턴 블록 칸 안이에요 — 모양은 ⋮⋮ 「다른 모양으로 바꾸기」·「줄글로 풀기」로', 3200);
+  if (c==='h2'||c==='h3'||c==='p') block(c);
+  else if (c==='bold') document.execCommand('bold');
+  else if (c==='mark') return mark();
+  else if (c==='ul'||c==='ol'||c==='todo') listOf(c);
+  else if (c==='quote') block('blockquote');
+  else if (c==='hr') document.execCommand('insertHorizontalRule');
+  markDirty(); paintBar();
+}
+document.addEventListener('click', e=>{
+  const li=e.target.closest('#ed ul.todo > li'); if(!li) return;
+  if (e.clientX - li.getBoundingClientRect().left < 24){ li.classList.toggle('done'); markDirty(); }
+});
+document.addEventListener('paste', e=>{
+  if(!e.target.closest('#ed') || JXB.inMind(e.target)) return;
+  e.preventDefault();
+  const t=(e.clipboardData||window.clipboardData).getData('text/plain'); if(!t) return;
+  if(!/\n/.test(t.trim())) return document.execCommand('insertText', false, t.trim());   // 한 줄은 문장 안에 그대로
+  document.execCommand('insertHTML', false, mdToHtml(t));
+});
+
+/* 필사 찍기: 미리보기는 거울(맞추기 편하게), 저장 사진은 반전 없이 */
+const cam = {stream:null, shots:[], batch:''};
+function camMsg(t, retry){ const m=$('#camMsg'); m.hidden=!t; m.innerHTML=t?`<div>${t}${retry?'<br><button class="btn cam-retry" id="camRetry">다시 켜기</button>':''}</div>`:''; if(retry) $('#camRetry').onclick=camOpen; }
+function camRender(){
+  $('#camStrip').innerHTML = cam.shots.map((u,i)=>`<figure><img src="${u}" alt="${i+1}번째 사진"><figcaption>${i+1}</figcaption><button class="cam-del" data-del="${i}" aria-label="${i+1}번째 사진 지우기">지우기</button></figure>`).join('');
+  $('#camCount').textContent = cam.shots.length+'장'; $('#camDone').disabled = !cam.shots.length;
+}
+async function camOpen(){
+  const d=new Date(); cam.batch=`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}_${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}`;
+  cam.shots=[]; camRender(); camMsg(''); $('#cam').showModal(); $('#camShoot').disabled=true;
+  if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
+    return camMsg('이 주소에서는 카메라를 쓸 수 없어요.<br>크롬 주소창에 <b>http://127.0.0.1:8790</b> 으로 열어 주세요.');
+  try{
+    cam.stream = await navigator.mediaDevices.getUserMedia({video:{width:{ideal:3840}, height:{ideal:2160}}, audio:false});
+    $('#camVideo').srcObject = cam.stream; $('#camShoot').disabled=false; $('#camShoot').focus();
+    const s = cam.stream.getVideoTracks()[0].getSettings(); $('#camInfo').textContent = `노트를 화면에 맞추고 찍기(스페이스)를 누르세요. 사진 크기 ${s.width||'?'}×${s.height||'?'}`;
+  }catch(e){
+    const n = e && e.name;
+    camMsg(n==='NotAllowedError' ? '카메라 허용이 꺼져 있어요.<br>주소창 왼쪽 아이콘을 눌러 <b>카메라 → 허용</b>으로 바꾼 뒤 다시 눌러 주세요.<br>그래도 안 되면 맥 <b>시스템 설정 → 개인정보 보호 및 보안 → 카메라</b>에서 Google Chrome을 켜 주세요.'
+         : n==='NotFoundError' || n==='OverconstrainedError' ? '카메라를 못 찾았어요.<br>맥북 뚜껑이 열려 있는지, 다른 앱(줌·페이스타임)이 카메라를 쓰고 있지 않은지 봐 주세요.'
+         : n==='NotReadableError' ? '다른 앱이 카메라를 쓰고 있어요.<br>줌·페이스타임 같은 앱을 닫고 다시 눌러 주세요.'
+         : '카메라를 못 켰어요. ('+esc(n||e)+')', true);
+  }
+}
+function camStop(){ if(cam.stream){ cam.stream.getTracks().forEach(t=>t.stop()); cam.stream=null; } $('#camVideo').srcObject=null; }
+function camShoot(){
+  const v=$('#camVideo'); if(!cam.stream || !v.videoWidth) return;
+  const c=document.createElement('canvas'); c.width=v.videoWidth; c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);  // 반전 없이 그대로 = 글씨가 똑바로
+  cam.shots.push(c.toDataURL('image/jpeg',.92)); camRender();
+  const st=$('#camStrip'); st.scrollLeft=st.scrollWidth;
+  $('.cam-stage').classList.remove('flash'); void $('.cam-stage').offsetWidth; $('.cam-stage').classList.add('flash');
+}
+async function camDone(){
+  const n=cam.shots.length; if(!n) return;
+  $('#camDone').disabled=true; $('#camShoot').disabled=true;
+  for (let i=0;i<n;i++){
+    $('#camCount').textContent=`저장 중 ${i+1}/${n}`;
+    let r; try{ r=await api('/api/shot',{batch:cam.batch, n:i+1, img:cam.shots[i]}); }catch(e){ r={ok:false,err:'서버가 꺼져 있어요'}; }
+    if(!r.ok){ $('#camDone').disabled=false; $('#camShoot').disabled=!cam.stream; camRender(); return toast('저장 못 했어요: '+(r.err||''),5000); }
+  }
+  cam.shots=[]; camStop(); $('#cam').close();
+  toast(`저장됨 ${n}장 — 클로드에게 「필사 옮겨」라고 말하세요`, 7000);
+}
+$('#shotBtn').onclick=()=>{ $('#app').classList.remove('menu'); camOpen(); };
+$('#camShoot').onclick=camShoot;
+$('#camDone').onclick=camDone;
+$('#camClose').onclick=()=>$('#cam').close();
+$('#cam').addEventListener('close', ()=>{ if(cam.shots.length && !confirm(`찍은 ${cam.shots.length}장을 저장하지 않고 닫을까요?`)) return $('#cam').showModal(); cam.shots=[]; camStop(); });
+$('#cam').addEventListener('keydown', e=>{ if(e.key===' '){ e.preventDefault(); camShoot(); } });
+$('#camStrip').addEventListener('click', e=>{ const b=e.target.closest('[data-del]'); if(!b) return; cam.shots.splice(+b.dataset.del,1); camRender(); });
+
+/* 저장 */
+function cleanH2(){ const ed=$('#ed'); if(!ed) return; clearMarks(); ed.querySelectorAll('h2').forEach(h=>{ h.classList.remove('moved'); if(h.hasAttribute('class') && !h.getAttribute('class').trim()) h.removeAttribute('class'); }); }   // 11/15 예전 ▲▼ 흔적 걷기
+async function save(auto=false){
+  const t = cur; if(!t) return; if(t===cur) cleanH2(); syncCur();
+  if (auto && (!t.dirty || (t.c!=='gasul' && t.c!=='mind'))) return;
+  if (auto && t.c==='mind' && !t.saved && (t.blank || !mindName(t) || (!(t.name||'').trim() && t.center==='중심 주제'))) return;   // 11/20 손 안 댄 새 마인드맵은 파일로 안 만듦
+  if (t.saving){ t.again = true; return; }
+  const name = fixedName(t) ? t.saved : t.c==='mind' ? mindName(t) : (t.name||'').trim();
+  if(!name){ if(auto) return; toast('제목을 먼저 쓰세요'); $('#title').focus(); return; }
+  const pdfless = t.c==='gasul' || PHONE, sent = t.html;
+  const btn=$('#saveBtn'); btn.disabled=true; t.saving=true;
+  const tidy = !auto && !pdfless && t.c!=='mind';   // 11/20 마인드맵은 다듬기 없음 · 11/14: 손으로 누른 저장은 공식집 규칙대로 다듬은 뒤 저장 (폰은 다듬기 없음 — 맥 서버 일)
+  setStatus(pdfless || auto ? '저장 중…' : tidy ? '규칙대로 다듬는 중… (1분쯤, 그동안 글은 잠가요)' : '저장하고 PDF 만드는 중…','busy');
+  const lockEd = on => { if(cur===t && $('#ed')) $('#ed').contentEditable = on ? 'false' : 'true'; };
+  if (tidy){ lockEd(true); $('#cmtPop').hidden=true; }
+  const ask = PHONE && !auto && t.c!=='gasul';   // 11/15 폰 「저장하고 PDF」 = 맥북에 「다듬기 + PDF」 요청을 같이 보냄
+  let r; try{ r=await api('/api/save',{c:t.c, old:t.saved, name, html:sent, tidy: tidy||ask, base:t.ver||(t.saved?'unknown':undefined), by:'tab', pdf: !auto}); }catch(e){ r={ok:false,err:PHONE?'폰에 저장하지 못했어요':'서버가 꺼져 있어요'}; }
+  if (tidy) lockEd(false);
+  btn.disabled=false; t.saving=false;
+  if(!r.ok){ if(cur===t) setStatus('저장 못 함','err'); return toast(r.err||'저장 못 했어요'); }
+  if (tidy && r.html && r.html !== sent){ t.html = r.html; if(cur===t && $('#ed')){ loadEd(t, r.html); placeMoves(); t.html = edHtml(); } }
+  // 11/21 다른 기기에서 바뀐 글과 자동으로 합쳐 저장됨 → 합친 판을 탭에. 저장하는 사이 더 쓴 게 있으면 탭은 그대로 두고(판도 그대로) 다음 저장 때 또 합침 — 빠지는 글 없음
+  let mergeKeep = false;
+  if (r.merged && !tidy && r.html && r.html !== sent){
+    if (cur===t) syncCur();
+    if (t.html === sent){ t.html = r.html; if (cur===t && $('#ed')){ const y=$('#scroll').scrollTop; loadEd(t, r.html); t.html = edHtml(); $('#scroll').scrollTop=y; } else if (cur===t && t.c==='mind'){ cur=null; show(t); } }
+    else mergeKeep = true;
+  }
+  const sentNow = (tidy || (r.merged && !mergeKeep)) && r.html ? t.html : sent;
+  const now = (cur===t && $('#ed')) ? edHtml() : t.html;
+  t.dirty = now !== sentNow; t.saved=r.name; t.updated=r.updated; if (!mergeKeep) t.ver=r.ver; t.savedHtml=r.html||sent; if (t.chg && (t.chg.kind!=='conflict' || (r.merged && !mergeKeep))){ t.chg=null; t.outside=false; putBanner(t); }   // 11/16 저장하면 「바뀜·휴지통」 띠는 걷음 · 11/21 합쳐 저장했으면 「바꿨어요」 띠도
+  if (!fixedName(t) || r.conflict) t.name=r.name;
+  if (r.conflict){ t.outside=false; t.chg=null; if(cur===t && ($('#ed')||t.c==='mind')){ t.html=edHtml(); cur=null; show(t); } }   // 11/15 다른 기기에서 먼저 바뀜 → 내 글은 새 이름으로
+  if (!t.dirty) store.del(draftKey(t));
+  if (cur===t){
+    if (!fixedName(t)) $('#title').value=r.name;
+    $('#viewPdf').disabled=false; $('#trashBtn').disabled=false;
+    if ($('.paper .kicker')) $('.paper .kicker').textContent=KICK[t.c];
+    setStatus(t.dirty ? '저장 안 됨' : PHONE && t.c!=='gasul' && !auto ? `${r.updated.slice(11)} 저장됨 · 맥북이 켜지면 ${t.c==='mind'?'':'다듬고 '}PDF로 만들어요` : pdfless || auto ? `${r.updated.slice(11)} 자동 저장됨` : `${r.updated.slice(5)} 저장, PDF ${r.pages}쪽`);
+  }
+  renderTabs(); persistTabs(); await loadList();
+  if (r.conflict) toast(`${PHONE?'맥북':'다른 기기'}에서 먼저 바뀐 글인데 자동으로 못 합쳐서, 내 글은 「${r.name}」 새 글로 따로 저장했어요`, 9000);
+  else if (r.merged) toast(`${PHONE?'맥북':'다른 기기'}에서 바뀐 글과 합쳐 저장했어요${r.merged.add?` · ${r.merged.add}줄 들어옴`:''} — 빠진 글 없음`, 5000);
+  else if (!auto) toast(PHONE && t.c!=='gasul' ? `저장됨 · 맥북이 켜지면 ${t.c==='mind'?'':'다듬고 '}PDF로 만들어요` : pdfless ? '저장했어요'
+    : r.skip ? `다듬기는 건너뛰고 그대로 저장했어요 (${r.skip})${cmtCount()?` · 댓글 ${cmtCount()}개는 그대로`:''}`
+    : tidy && r.changes && r.changes.length ? `규칙대로 다듬어 저장 · PDF ${r.pages}쪽 — ${r.changes.slice(0,4).join(' / ')}${r.changes.length>4?` 외 ${r.changes.length-4}개`:''}`
+    : `「${r.name}」 저장 · PDF 새로 만들었어요${tidy?' (고칠 것 없음)':''}`, tidy?9000:PHONE&&t.c!=='gasul'?4500:2200);
+  if (t.dirty && (t.again || pdfless || t.c==='mind' || mergeKeep)){ t.again=false; clearTimeout(aT); aT=setTimeout(()=>save(true), 600); }
+}
+$('#saveBtn').onclick=()=>save(false);
+$('#trashBtn').onclick=()=>{ if(cur&&cur.saved) trashDoc(cur.c, cur.saved); };
+/* 11/21 지우기 한 곳 — 글 오른쪽 위 「지우기」·목록 휴지통 아이콘·오른쪽 클릭·길게 누르기 메뉴가 다 여기로. 확인창 문구는 예전 그대로 */
+async function trashDoc(c, n){
+  if(!confirm(`「${pretty(c,n)}」을 지울까요? ${c==='gasul'?'원본이':'원본과 PDF가'} 휴지통으로 옮겨져요(되살릴 수 있어요).`)) return false;
+  let r; try{ r = await api('/api/trash',{c,n,by:'tab'}); }catch(e){ r = {ok:false, err:PHONE?'폰에서 못 지웠어요':'서버가 꺼져 있어요'}; }
+  if (r && r.ok===false){ toast(r.err||'못 지웠어요'); await loadList(); return false; }
+  const t = tabs.find(z=>z.c===c && z.saved===n);
+  if (t){ store.del(draftKey(t)); t.dirty=false; }
+  await loadList();
+  if (t){ t.dirty=false; const keep=cur; if (cur===t) closeTab(t.id); else { const i=tabs.indexOf(t); if(i>=0) tabs.splice(i,1); renderTabs(); persistTabs(); if(keep) cur=keep; } }
+  toast('휴지통으로 옮겼어요 · 목록 맨 아래 「휴지통」에서 되살릴 수 있어요', 3500);
+  return true;
+}
+async function renameDoc(c, n){
+  if (c==='gasul') return toast('업무일지는 이름을 바꾸지 않아요(달 이름·장부)');
+  const t = tabs.find(z=>z.c===c && z.saved===n);
+  if (t && t.dirty) return toast('이 글에 저장 안 한 편집이 있어요. 글에서 제목을 고쳐 저장해 주세요', 4000);
+  const v = prompt(`「${n}」의 새 이름`, n); if (v===null) return;
+  const nw = v.trim(); if (!nw || nw===n) return;
+  let r; try{ r = await api('/api/rename',{c, old:n, new:nw, by:'tab'}); }catch(e){ r = {ok:false, err:'서버가 꺼져 있어요'}; }
+  if (!r || !r.ok) return toast((r && r.err) || '이름을 못 바꿨어요');
+  if (t){ t.saved = r.name; t.name = r.name; if (cur===t && $('#title')) $('#title').value = r.name; persistTabs(); renderTabs(); }
+  await loadList(); toast(`「${r.name}」(으)로 이름을 바꿨어요`);
+}
+/* 메뉴(오른쪽 클릭 · 폰 길게 누르기) */
+let ctxFor = null;
+function openCtx(c, n, x, y){
+  ctxFor = {c, n}; const m = $('#ctx');
+  $('#ctxWho').textContent = pretty(c, n);
+  m.querySelector('[data-act="rename"]').hidden = c==='gasul';
+  m.hidden = false;
+  const w = m.offsetWidth, h = m.offsetHeight;
+  m.style.left = Math.max(8, Math.min(x, innerWidth - w - 8)) + 'px';
+  m.style.top = Math.max(8, Math.min(y, innerHeight - h - 8)) + 'px';
+  m.querySelector('button:not([hidden])').focus({preventScroll:true});
+}
+function closeCtx(){ $('#ctx').hidden = true; ctxFor = null; }
+const itemOf = el => { const b = el && el.closest && el.closest('.side .item[data-open]'); if (!b) return null; const [c,...n] = b.dataset.open.split('|'); return {b, c, n:n.join('|')}; };
+const LP = {t:0, x:0, y:0, fired:0};
+document.addEventListener('contextmenu', e=>{
+  const it = itemOf(e.target); if (!it) return;
+  e.preventDefault(); if (Date.now() - LP.fired < 900) return;   // 안드로이드는 길게 누르면 contextmenu 도 옴 — 한 번만
+  openCtx(it.c, it.n, e.clientX, e.clientY);
+});
+document.addEventListener('pointerdown', e=>{
+  if (!$('#ctx').hidden && !e.target.closest('#ctx')) closeCtx();
+  const it = itemOf(e.target); if (!it || e.pointerType==='mouse') return;
+  clearTimeout(LP.t); LP.x = e.clientX; LP.y = e.clientY;
+  LP.t = setTimeout(()=>{ LP.fired = Date.now(); if (navigator.vibrate) try{ navigator.vibrate(12); }catch(_){} openCtx(it.c, it.n, LP.x, LP.y); }, 520);
+}, true);
+document.addEventListener('pointermove', e=>{ if (LP.t && Math.hypot(e.clientX-LP.x, e.clientY-LP.y) > 10){ clearTimeout(LP.t); LP.t = 0; } }, true);
+['pointerup','pointercancel'].forEach(k=>document.addEventListener(k, ()=>{ clearTimeout(LP.t); LP.t = 0; }, true));
+document.addEventListener('click', e=>{   // 길게 누른 뒤 손을 떼면 오는 click 은 글을 열지 않게
+  if (Date.now() - LP.fired < 900 && itemOf(e.target)){ e.preventDefault(); e.stopPropagation(); }
+}, true);
+document.addEventListener('keydown', e=>{ if (e.key==='Escape' && !$('#ctx').hidden){ e.preventDefault(); closeCtx(); } }, true);
+$('#cols').addEventListener('scroll', closeCtx, {passive:true});
+window.addEventListener('blur', closeCtx);
+$('#ctx').addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if (!b || !ctxFor) return;
+  const {c, n} = ctxFor; closeCtx();
+  if (b.dataset.act==='del') trashDoc(c, n); else if (b.dataset.act==='rename') renameDoc(c, n);
+});
+document.addEventListener('click', e=>{
+  const d = e.target.closest('.side [data-del]'); if (d){ e.preventDefault(); const [c,...n] = d.dataset.del.split('|'); return trashDoc(c, n.join('|')); }
+  if (e.target.closest('.side [data-trash]')){ e.preventDefault(); trOpen(); }
+});
+/* 휴지통 보기 */
+function trOpen(){ $('#trashPanel').hidden = false; $('#slog').hidden = true; $('#app').classList.remove('menu'); trRender(); loadTrash(); }
+function trClose(){ $('#trashPanel').hidden = true; }
+$('#trX').onclick = trClose;
+function trRender(){
+  const ul = $('#trList'), items = (trashData && trashData.items) || [];
+  ul.innerHTML = items.length ? items.map(x=>`<li class="tr-row"><span class="grow"><span class="nm">${esc(pretty(x.c, x.name))}</span><br><span class="m">${NAME[x.c]} · ${esc(x.when)} 지움${x.pending==='mac' ? ' · 맥으로 보내는 중' : x.pending==='local' ? ' · 이 폰에만 있던 글' : ''}</span></span><button class="btn" type="button" data-restore="${x.c}|${esc(x.id)}">되살리기</button></li>`).join('')
+    : '<li class="sl-empty">휴지통이 비어 있어요</li>';
+}
+$('#trList').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-restore]'); if (!b) return;
+  const [c,...id] = b.dataset.restore.split('|'); b.disabled = true;
+  let r; try{ r = await api('/api/restore', {c, id:id.join('|'), by:'tab'}); }catch(e){ r = {ok:false, err:'서버가 꺼져 있어요'}; }
+  if (!r || !r.ok){ b.disabled = false; return toast((r && r.err) || '못 되살렸어요', 4000); }
+  await loadList(); trRender();
+  toast(r.renamed ? `같은 이름이 있어서 「${r.name}」(으)로 되살렸어요` : `「${pretty(c, r.name)}」 되살렸어요`, 4000);
+});
+/* 11/21 지우는 사이 다른 기기에서 고친 글은 「고친 것 살림」 — 그때 띠로 알림(한 번 닫으면 그 뒤 것만) */
+function showRevived(){
+  const L = ((trashData && trashData.revived) || []), seen = +store.get('revSeen', 0) || 0, fresh = L.filter(e=>e.t > seen);
+  let bn = $('#reviveBn');
+  if (!fresh.length){ if (bn) bn.remove(); return; }
+  const h = `<span class="grow"><b>지운 글이 되살아났어요</b><ul class="chgNote">${fresh.slice(-6).map(e=>`<li>「${esc(pretty(e.c, e.n||''))}」 ${esc(e.msg||'')}</li>`).join('')}</ul></span><button class="btn" type="button" id="reviveOk">확인</button>`;
+  if (!bn){ bn = document.createElement('div'); bn.id = 'reviveBn'; bn.className = 'banner outside reviveBn'; $('#scroll').before(bn); }
+  bn.innerHTML = h;
+  $('#reviveOk').onclick = ()=>{ store.set('revSeen', Math.max(...fresh.map(e=>e.t))); bn.remove(); };
+}
+$('#viewPdf').onclick=()=>{ if(cur&&cur.saved&&PHONE) return window.LocalPdf(cur.c, cur.saved); if(cur&&cur.saved) window.open(`/pdf?c=${cur.c}&n=${encodeURIComponent(cur.saved)}&t=${Date.now()}`); };
+document.addEventListener('keydown', e=>{
+  if(((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s')||(e.altKey&&!e.metaKey&&!e.ctrlKey&&e.code==='KeyS')){ e.preventDefault(); save(false); }   // 한글: Alt+S·Ctrl+S
+  if((e.metaKey||e.ctrlKey)&&e.key==='.'){ e.preventDefault(); setFocus(!$('#app').classList.contains('focus')); }
+  if(e.key==='Escape' && !$('#cam').open && $('#app').classList.contains('focus')) setFocus(false);
+});
+window.addEventListener('beforeunload', e=>{ syncCur(); if(tabs.some(t=>t.dirty)){ e.preventDefault(); e.returnValue=''; } });
+window.addEventListener('hashchange', ()=>{ if(location.hash==='#today'){ history.replaceState(null,'',location.pathname); openToday(); } if(location.hash==='#mind'){ history.replaceState(null,'',location.pathname); openMind(); } });
+function openMind(){ const d = data && data.mind && data.mind.docs[0]; return d ? openDoc('mind', d.name) : newDoc('mind'); }   // 11/20 「마인드맵 열기」 앱(#mind) — 최근 마인드맵, 없으면 새로
+
+/* 11/15 다른 기기에서 바뀐 글 알아채기 → 11/16 누가·언제·무엇을 띠로 + 바뀐 곳 노란 줄.
+   안 고친 탭은 알아서 새 판으로 바꾸고, 저장 안 한 편집이 있는 탭은 덮어쓰지 않고 [새 판 불러오기]/[내 것 유지]. 맥: /api/changed(5초·창 포커스), 폰: /api/list 판 번호 */
+const WHO = {claude:'클로드가', '클로드':'클로드가', '폰':'폰에서', phone:'폰에서', tab:'다른 탭에서', mac:'맥북에서'};
+function who(l){ return l && l.by ? (WHO[l.by] || (l.by+'에서')) : (PHONE ? '맥북에서' : '다른 곳에서'); }
+function hm(l){ if(!l||!l.t) return ''; const d=new Date(l.t*1000); return ` ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}에`; }
+function noteList(l){ const n=(l&&l.note)||[]; return n.length?`<ul class="chgNote">${n.slice(0,15).map(x=>`<li>${esc(x)}</li>`).join('')}${n.length>15?`<li>… 외 ${n.length-15}줄</li>`:''}</ul>`:''; }
+function outsideBanner(t){
+  const x = t.chg || {}, l = x.last, w = who(l)+hm(l), ren = x.renamed ? ` 제목을 「${esc(x.renamed)}」(으)로 바꾸고` : '';
+  let msg, btn = '<button class="btn ghost" data-ob="close">닫기</button>';
+  if (x.kind==='gone') msg = `<b>${w} 이 글을 휴지통으로 옮겼어요.</b> 지금 저장하면 이 제목으로 다시 생겨요.`;
+  else if (x.kind==='conflict'){
+    msg = `<b>${w}${ren} 이 글을 바꿨어요.</b> 이 탭에 저장 안 한 편집이 있어서 덮어쓰지 않았어요.` + (x.keep ? ' 내 것 유지 중 — 지금 저장하면 바뀐 글과 내 글을 한 판으로 합쳐요. 아무것도 안 지워져요.' : '');
+    if (!x.keep) btn = '<button class="btn" data-ob="load">새 판 불러오기</button><button class="btn" data-ob="keep">내 것 유지</button>';
+  }
+  else if (x.kind==='rename') msg = `<b>${w} 제목을 「${esc(x.renamed)}」(으)로 바꿨어요.</b> 이 탭도 새 제목으로 따라갔어요.`;
+  else if (l && l.note && /^(폰|맥)과 합쳤어요/.test(l.note[0]||'')) msg = `<b>${esc(l.note[0])}</b>${hm(l)} · ${x.n ? `들어온 곳 ${x.n}군데를 노란 줄로 잠깐 보여 드려요.` : '이 탭도 합친 판으로 바꿨어요.'}`;   // 11/21 자동 합치기
+  else msg = `<b>${w}${ren} 바꿨어요.</b> ${x.n ? `달라진 곳 ${x.n}군데를 노란 줄로 잠깐 보여 드려요.` : '새 판으로 바꿨어요.'}`;
+  return `<div class="banner outside" id="outsideBn"><span class="grow">${msg}${noteList(l)}</span>${btn}</div>`;
+}
+function putBanner(t){ if (cur!==t || !$('#scroll')) return; const o=$('#outsideBn'); if(!t.chg){ if(o) o.remove(); return; }
+  const h=outsideBanner(t); if(o) o.outerHTML=h; else $('#scroll').insertAdjacentHTML('afterbegin', h); }
+function markOutside(t){ if (!t.chg) t.chg={kind:'conflict'}; t.outside = true; putBanner(t); }   // 쓰던 커서는 그대로
+const MARK_SEL = 'p, li, h2, h3, h4, blockquote';
+function blockText(el){ const k=el.cloneNode(true); k.querySelectorAll('ul, ol, p, blockquote').forEach(x=>x.remove()); return (k.textContent||'').replace(/[\s ​]+/g,''); }
+function clearMarks(){ const ed=$('#ed'); if(!ed) return; ed.querySelectorAll('.jx-new').forEach(x=>{ x.classList.remove('jx-new'); if(!x.getAttribute('class')) x.removeAttribute('class'); }); }
+function applyMarks(oldHtml){   // 옛 판에 없던 글자 블록만 표시 (같은 글자 블록은 개수까지 맞춰 뺌)
+  const ed=$('#ed'); if(!ed) return 0;
+  const box=document.createElement('div'); box.innerHTML=splitDoc(oldHtml||'')[1];
+  const had=new Map(); box.querySelectorAll(MARK_SEL).forEach(el=>{ const k=blockText(el); if(k) had.set(k,(had.get(k)||0)+1); });
+  const hit=[]; ed.querySelectorAll(MARK_SEL).forEach(el=>{ const k=blockText(el); if(!k) return; const n=had.get(k)||0; if(n){ had.set(k,n-1); return; } hit.push(el); });
+  hit.forEach(el=>el.classList.add('jx-new'));
+  clearTimeout(applyMarks._t); applyMarks._t=setTimeout(clearMarks, 20000);
+  return hit.length;
+}
+function countMarks(oldHtml, newHtml){ const a=document.createElement('div'), b=document.createElement('div'); a.innerHTML=splitDoc(oldHtml||'')[1]; b.innerHTML=splitDoc(newHtml||'')[1];
+  const had=new Map(); a.querySelectorAll(MARK_SEL).forEach(el=>{ const k=blockText(el); if(k) had.set(k,(had.get(k)||0)+1); });
+  let n=0; b.querySelectorAll(MARK_SEL).forEach(el=>{ const k=blockText(el); if(!k) return; const m=had.get(k)||0; if(m) had.set(k,m-1); else n++; }); return n; }
+async function reloadTab(t, nd, chg){   // 새 판으로 바꾸기 (+ 띠 + 바뀐 곳 표시)
+  const old = t.savedHtml!=null ? t.savedHtml : t.html; t.savedHtml=nd.html; t.html=nd.html;   // 비교는 마지막으로 받은·저장한 판과(내 버린 편집 말고)
+  t.html=nd.html; t.ver=nd.ver; t.updated=nd.updated; t.outside=false; t.dirty=false;
+  t.chg = Object.assign({}, chg, {n: countMarks(old, nd.html)}); t.pendMark = old;
+  if (cur===t){ const y=$('#scroll').scrollTop; cur=null; show(t); $('#scroll').scrollTop=y; }
+  renderTabs();
+}
+async function tabState(t, L){   // 지금 서버(폰은 폰 저장소)의 이 글 상태
+  if (PHONE){ const d = L && L[t.c] && L[t.c].docs.find(x=>x.name===t.saved); return d ? {exists:true, name:t.saved, ver:d.ver, updated:d.updated, last: window.JisikSync && JisikSync.noteOf ? JisikSync.noteOf(t.c, t.saved, d.ver) : null} : null; }
+  const r = await api(`/api/changed?c=${t.c}&n=${encodeURIComponent(t.saved)}`); return r && r.ok ? r : null;
+}
+async function checkOutside(){
+  if (document.hidden || !data) return;
+  if (checkOutside.busy){ checkOutside.again = true; return; }   // 11/17 확인 중에 온 신호(폰 동기화 받음·맥 동기화 끝)도 놓치지 않게
+  checkOutside.busy = true;
+  try{
+    const tick = (checkOutside.n = (checkOutside.n||0) + 1);
+    let L = null;
+    const force = checkOutside.force; checkOutside.force = false;
+    if (PHONE || force || tick % 3 === 1){ L = await api('/api/list'); if (L && L.gongsik){ data = L; await loadTrash(); } else L = null; }
+    for (const t of tabs){
+      if (!t.saved || t.saving || !t.ver) continue;
+      const st = await tabState(t, L); if (!st || t.saving) continue;
+      if (st.name !== t.saved){   // 이름이 바뀜 → 새 이름으로 따라감
+        const oldN = t.saved; t.saved = st.name;
+        if (!fixedName(t) && (t.name||'').trim()===oldN){ t.name = st.name; if (cur===t && $('#title')) $('#title').value = st.name; }
+        t.chg = {kind:'rename', renamed:st.name, last:st.renamed||st.last}; putBanner(t); persistTabs(); renderTabs();
+        if (st.exists && st.ver===t.ver) continue;
+      }
+      if (!st.exists){ if (!t.chg || t.chg.kind!=='gone'){ t.chg = {kind:'gone', last:st.last}; putBanner(t); toast(`「${pretty(t.c,t.saved)}」 ${who(st.last)} 휴지통으로 옮겼어요`, 5000); } continue; }
+      if (!st.ver || st.ver===t.ver) continue;
+      const ren = t.chg && t.chg.kind==='rename' ? t.chg.renamed : '';
+      if (cur===t) syncCur();
+      if (!t.dirty){
+        const nd = await api(`/api/doc?c=${t.c}&n=${encodeURIComponent(t.saved)}`);
+        if (nd.err || t.saving) continue;
+        if (cur===t) syncCur();
+        if (t.dirty){ t.chg = {kind:'conflict', last:st.last, ver:st.ver, renamed:ren}; markOutside(t); continue; }
+        await reloadTab(t, nd, {kind:'edit', last:st.last, renamed:ren});
+        toast(`「${pretty(t.c,t.saved)}」 ${who(st.last)} 바꾼 새 판으로 바꿨어요`, 4000);
+      } else if (!t.chg || t.chg.kind!=='conflict' || t.chg.ver!==st.ver){
+        t.chg = {kind:'conflict', last:st.last, ver:st.ver, renamed:ren}; markOutside(t); renderTabs();
+      }
+    }
+    if (L){ if (!$('#q').value.trim()) renderSide(); if (!cur) $('#scroll').innerHTML = welcome(); }
+  } catch(e){} finally { checkOutside.busy = false; if (checkOutside.again){ checkOutside.again = false; setTimeout(checkOutside, 300); } }
+}
+$('#scroll').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-ob]'); if (!b || !cur) return; const t = cur, a = b.dataset.ob;
+  if (a==='close'){ t.chg=null; putBanner(t); clearMarks(); return; }
+  if (a==='keep'){ t.chg.keep=true; putBanner(t); return; }
+  if (a==='load'){
+    const nd = await api(`/api/doc?c=${t.c}&n=${encodeURIComponent(t.saved)}`); if (nd.err) return toast('못 불러왔어요: '+nd.err);
+    const ch = t.chg || {}; store.del(draftKey(t)); t.draft=null;
+    await reloadTab(t, nd, {kind:'edit', last:ch.last, renamed:ch.renamed}); toast('새 판으로 바꿨어요 (이 탭의 저장 안 한 편집은 버렸어요)', 4000);
+  }
+});
+setInterval(checkOutside, PHONE ? 15000 : 5000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ checkOutside(); pullNow(); } });
+window.addEventListener('focus', ()=>{ checkOutside(); pullNow(); });
+window.addEventListener('jisik:changed', ()=>{ checkOutside.force = true; checkOutside(); });   // 폰앱 동기화가 새 판을 받았을 때
+/* 11/17 맥: 편집기를 열 때·창이 다시 보일 때 깃허브(폰)에서 바로 받아 온다(전엔 3분 바퀴를 기다림).
+   POST /api/sync → 서버가 20초에 한 번으로 묶음. 바퀴가 끝나면(GET /api/sync 의 at 이 바뀜) 목록·열린 탭을 바로 새로 본다. */
+async function pullNow(){
+  if (PHONE || pullNow.busy) return; pullNow.busy = true;
+  try{
+    const before = await api('/api/sync'), r = await api('/api/sync', {});
+    if (r && r.kicked===false && before && before.running===false) return;   // 방금 받아 왔음(20초 안) — 다시 안 감
+    const t0 = Date.now();
+    while (Date.now() - t0 < 45000){
+      await new Promise(ok=>setTimeout(ok, 2000));
+      const st = await api('/api/sync');
+      if (st && st.at && st.at !== (before && before.at) && !st.running){ checkOutside.force = true; checkOutside(); return; }
+    }
+  } catch(e){} finally { pullNow.busy = false; }
+}
+
+/* 11/16 동기화 기록 — 맥(server.py /api/synclog: .sync git log + _동기화기록.jsonl)·폰(phone.js: 깃허브 commits API + 같은 jsonl + 폰 안 실패)이
+   같은 모양({commits, events, local, status})을 주면 여기서 사람 말 한 줄씩으로 바꾼다. 최근 50건, 최신이 위. */
+const SL_DIR = {'공식집':'gongsik','지식정리본':'jeongri','가설일지':'gasul'};
+const SL_PDF = {'공략집':'gongsik','나만의 공식집':'gongsik','지식정리본':'jeongri','업무일지':'gasul'};
+const SL_HIDE = /^(_요청\/|_휴지통\/|\.gitattributes$|pdf\/_목록\.json$|_동기화기록\.jsonl$)/;
+function slRows(d){
+  const rows = [];
+  for (const cm of d.commits||[]){
+    const dev = /^폰/.test(cm.msg) ? '폰' : /^맥/.test(cm.msg) || cm.author==='jisik-mac' ? '맥' : '기타';
+    const g = new Map();
+    for (const [st, path0] of cm.files||[]){
+      const path = String(path0).normalize('NFC'); if (SL_HIDE.test(path)) continue;
+      let m = path.match(/^([^/]+)\/([^/]+)\.html$/), c, n, kind;
+      if (m && SL_DIR[m[1]]) { c = SL_DIR[m[1]]; n = m[2]; kind = 'html'; }
+      else if ((m = path.match(/^pdf\/([^/]+)\/([^/]+)\.pdf$/)) && SL_PDF[m[1]]) { c = SL_PDF[m[1]]; n = m[2]; kind = 'pdf'; }
+      else continue;
+      const k = c+'|'+n, x = g.get(k) || {c, n}; x[kind] = st; g.set(k, x);
+    }
+    for (const x of g.values()){
+      let kind, label;
+      if (x.html==='A' && /\(충돌 \d\d-\d\d/.test(x.n)) { kind = 'conflict'; label = '충돌 → 둘 다 남김'; }
+      else if (x.html==='D') { kind = 'del'; label = dev+' → 지움'; }
+      else if (x.html) { kind = 'up'; label = dev+' → 올림'+(x.pdf && x.pdf!=='D' ? '+PDF' : ''); }
+      else if (x.pdf==='D') continue;   // 지운 글의 PDF 정리는 숨김
+      else { kind = 'pdf'; label = dev+' → PDF 만듦'; }
+      rows.push({t:cm.t, kind, label, c:x.c, n:x.n, dev, gone: x.html==='D'});
+    }
+  }
+  for (const e of [...(d.events||[]), ...(d.local||[])]){
+    const dev = e.dev==='phone' ? '폰' : '맥'; let label;
+    if (e.kind==='down') label = `${dev} → 받음(${dev==='맥'?'폰':'맥'}에서 온 것)`;
+    else if (e.kind==='tidy') label = dev+' → 다듬기+PDF';
+    else if (e.kind==='fail') label = '실패 · '+dev;
+    else if (e.kind==='skip') label = '건너뜀 · '+dev;
+    else if (e.kind==='merge') label = dev+' → 합침(사본 없이 한 판)';   // 11/21 자동 합치기
+    else if (e.kind==='conflict') label = '합치기 못 함 → 사본 · '+dev;
+    else if (e.kind==='trash') label = dev+' → 휴지통으로';   // 11/21
+    else if (e.kind==='restore') label = dev+' → 휴지통에서 되살림';
+    else if (e.kind==='revive') label = '지운 글 되살아남(고친 것 살림) · '+dev;
+    else continue;
+    rows.push({t:e.t, kind:e.kind, label, c:e.c, n:e.n, msg:e.msg, cnt:e.cnt, t0:e.t0, dev, gone: e.msg==='지움'});
+  }
+  rows.sort((a,b)=>b.t-a.t);
+  return rows.slice(0, 50);
+}
+const slWhen = t => { const d = new Date(t*1000); return `${d.getMonth()+1}/${d.getDate()} ${p2(d.getHours())}:${p2(d.getMinutes())}`; };
+function slAgo(t){ if (!t) return '아직 없음'; const m = Math.round((Date.now()/1000 - t)/60); return m < 1 ? '방금' : m < 60 ? `${m}분 전` : m < 1440 ? `${Math.floor(m/60)}시간 ${m%60}분 전` : slWhen(t); }
+async function slLoad(){
+  const st = $('#slSt'), ul = $('#slList');
+  st.textContent = '불러오는 중…';
+  let d; try { d = await api('/api/synclog'); } catch(e){ d = {err: String(e && e.message || e)}; }
+  if (!d || d.err && !d.commits){ st.innerHTML = `<span class="bad">기록을 못 불러왔어요: ${esc(d && d.err || '알 수 없음')}</span>`; ul.innerHTML = ''; return; }
+  const s = d.status || {}, rows = slRows(d), me = s.dev==='phone' ? '폰' : '맥';
+  const macDown = [...(d.events||[])].filter(e=>e.kind==='down' && e.dev!=='phone').reduce((a,e)=>Math.max(a,e.t), 0);
+  st.innerHTML = `마지막 동기화 <b>${esc(slAgo(s.last))}</b> · ${me}에만 있는 것 <b>${s.pending||0}개</b> · 맥이 마지막으로 받은 시각 <b>${macDown ? esc(slWhen(macDown)) : '아직 없음'}</b>`
+    + (s.ok===false && s.err ? `<br><span class="bad">지금 상태: ${esc(s.err)}</span>` : '') + (s.note ? `<br><span class="bad">${esc(s.note)}</span>` : '');
+  const names = new Map(); if (data) for (const c of ORDER) for (const x of (data[c]||{docs:[]}).docs) names.set(c+'|'+String(x.name).normalize('NFC'), x.name);   // 디스크 이름(NFD일 수 있음) ↔ 기록 이름(NFC)
+  ul.innerHTML = rows.length ? rows.map(r=>{
+    const nm = r.n ? (r.kind==='conflict' ? `「${esc(pretty(r.c,r.n))}」` : esc(pretty(r.c,r.n))) : '';
+    const open = r.n && r.c && !r.gone && names.has(r.c+'|'+r.n);
+    const title = !r.n ? '' : ' · ' + (open ? `<button class="n" type="button" data-c="${esc(r.c)}" data-n="${esc(names.get(r.c+'|'+r.n))}">${nm}</button>` : `<span class="gone">${nm}</span>`);
+    const extra = (r.msg && r.kind!=='fail' && r.kind!=='skip' ? ` <span class="m">(${esc(r.msg)})</span>` : '')
+      + (r.kind==='fail'||r.kind==='skip' ? ' · ' + esc(r.msg||'') + (r.cnt>1 ? ` <span class="m">(×${r.cnt}, ${esc(slWhen(r.t0||r.t))}부터)</span>` : '') : '');
+    return `<li class="${r.kind} ${r.dev==='폰'?'phone':'mac'}"><span class="w">${slWhen(r.t)}</span> · <span class="a">${esc(r.label)}</span>${title}${extra}</li>`;
+  }).join('') : '<li class="sl-empty">아직 기록이 없어요</li>';
+}
+function slOpen(){ $('#slog').hidden = false; $('#app').classList.remove('menu'); slLoad(); }
+function slClose(){ $('#slog').hidden = true; }
+document.addEventListener('click', e=>{ if (e.target.closest('#slBtn')) { e.preventDefault(); $('#slog').hidden ? slOpen() : slClose(); } });
+$('#slX').onclick = slClose; $('#slRe').onclick = slLoad;
+$('#slList').addEventListener('click', async e=>{
+  const b = e.target.closest('button.n'); if (!b) return;
+  const t = await openDoc(b.dataset.c, b.dataset.n); if (t && innerWidth <= 760) slClose();
+});
+document.addEventListener('keydown', e=>{ if (e.key==='Escape' && !$('#slog').hidden){ slClose(); } });
+
+/* 11/16 댓글 — 사장님이 글의 한 부분(또는 글 전체)에 고칠 지시를 단다. 「저장하고 PDF」 다듬기 때 지시로 반영(server.py polish·settle_cmts).
+   부분 댓글: <span class="cmt" data-cmt="id" data-note="지시" [data-reply="클로드: 못 한 이유"]>글자</span> (여러 줄이면 같은 id 여러 개)
+   글 전체 댓글: 맨 앞 <div class="cmt-doc" data-cmt data-note hidden></div> — 편집기 #ed 밖(t.docCmts)에 두고 저장할 때만 앞에 붙인다(edHtml). */
+const CMT_SEL='span.cmt[data-cmt]';
+let cmtNew=null, cmtEdit=null, cmtActive=null, cmtSel=null, cmtNavI=-1;
+const cmtId=()=>'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function splitDoc(h){ h=String(h||''); const m=h.match(/^(?:\s*<div\b[^>]*\bclass="cmt-doc"[^>]*>\s*<\/div>)*/); const pre=m?m[0]:'';
+  const tp=document.createElement('template'); tp.innerHTML=pre;
+  return [[...tp.content.querySelectorAll('div.cmt-doc')].map(d=>({id:d.dataset.cmt||cmtId(), note:d.dataset.note||'', reply:d.dataset.reply||''})).filter(c=>c.note.trim()), h.slice(pre.length)]; }
+function docPrefix(t){ return ((t&&t.docCmts)||[]).filter(c=>c.note.trim()).map(c=>`<div class="cmt-doc" data-cmt="${esc(c.id)}" data-note="${esc(c.note)}"${c.reply?` data-reply="${esc(c.reply)}"`:''} hidden></div>`).join(''); }
+function edHtml(){ if (cur && cur.c==='mind' && window.Mind && Mind.on()) return Mind.html(); const ed=$('#ed'); return docPrefix(cur) + (ed ? noMarks(JXB.html(ed)) : '') + JXBoard.tail(cur); }   // 11/21 블록 없는 글은 innerHTML 그대로 · 화이트보드는 맨 끝 꼬리
+function noMarks(h){ return h.replace(/ class="([^"]*\bjx-new\b[^"]*)"/g, (m,c)=>{ const k=c.split(/\s+/).filter(x=>x&&x!=='jx-new').join(' '); return k?` class="${k}"`:''; }); }   // 11/16 「바뀐 곳」 표시는 저장·초안·비교에 절대 안 들어가게
+function loadEd(t, h){ const [d, b0]=splitDoc(h); const [bj, b]=JXBoard.cut(b0); t.docCmts=d; t.board=bj; cmtNew=cmtEdit=null; cmtSheetClose(); $('#ed').innerHTML=b; renderCmts(); JXB.attach(); if (JXBoard.on()) JXBoard.refresh(); }
+function cmtGroups(){ const m=new Map(), ed=$('#ed'); if(!ed) return m;
+  ed.querySelectorAll(CMT_SEL).forEach(sp=>{ const id=sp.dataset.cmt; if(!m.has(id)) m.set(id,{id, els:[], note:sp.dataset.note||'', reply:sp.dataset.reply||''}); m.get(id).els.push(sp); });
+  return m; }
+function cmtCount(){ return cur ? (cur.docCmts||[]).length + [...cmtGroups().values()].filter(g=>g.note.trim()).length : 0; }
+function cmtData(id){ const d=(cur&&cur.docCmts||[]).find(c=>c.id===id); if(d) return {...d, doc:true, text:''};
+  const g=cmtGroups().get(id); return g ? {...g, doc:false, text:g.els.map(e=>e.textContent).join(' ').replace(/\s+/g,' ').trim()} : null; }
+function cmtWide(){ const sc=$('#scroll'); return !!sc && sc.clientWidth >= 1064; }
+function cmtCard(c){
+  const el=document.createElement('div'); el.className='cc'+(cmtActive===c.id?' on':''); el.dataset.id=c.id; el.dataset.doc=c.doc?'1':'';
+  const editing = (cmtNew&&cmtNew.id===c.id) || cmtEdit===c.id;
+  el.innerHTML = (c.doc?'<span class="tag">💬 글 전체</span>':'') + (c.text?`<q>「${esc(c.text.slice(0,60))}${c.text.length>60?'…':''}」</q>`:'') + (editing
+    ? `<textarea aria-label="댓글 지시" placeholder="${c.doc?'글 전체에 줄 지시 (예: 소제목을 모두 질문으로)':'고칠 지시 (예: 이 두 문장 합쳐 · 여기 소제목으로)'}">${esc(c.note)}</textarea><div class="acts"><button type="button" class="save" data-a="ok">저장</button><button type="button" data-a="cancel">취소</button><span class="grow"></span><span class="status">⌘↵ 저장</span></div>`
+    : `<div class="nt">${esc(c.note)}</div>${c.reply?`<div class="rp">${esc(c.reply)}</div>`:''}<div class="acts"><button type="button" data-a="edit">고치기</button><button type="button" data-a="del">지우기</button><button type="button" data-a="done">해결</button></div>`);
+  return el;
+}
+function renderCmts(){
+  const pa=$('.paper'), ed=$('#ed'), box=$('#docCmts'); if(!pa||!ed||!box||!cur) return;
+  const keep={}; document.querySelectorAll('.paper .cc textarea').forEach(x=>{ keep[x.closest('.cc').dataset.id]=[x.value, document.activeElement===x, x.selectionStart]; });
+  const G=cmtGroups(), W=cmtWide() && G.size>0;
+  $('#scroll').classList.toggle('rail', W);
+  pa.querySelectorAll(':scope > .cc').forEach(x=>x.remove()); box.innerHTML='';
+  for (const c of cur.docCmts||[]) box.append(cmtCard({...c, doc:true, text:''}));
+  if (cmtNew && cmtNew.doc) box.append(cmtCard({id:cmtNew.id, doc:true, note:'', reply:'', text:''}));
+  if (W){ const pr=pa.getBoundingClientRect(); let y=0;
+    for (const g of G.values()){ const c=cmtData(g.id), el=cmtCard(c); pa.append(el);
+      const top=Math.max(g.els[0].getBoundingClientRect().top-pr.top-8, y); el.style.top=top+'px'; y=top+el.offsetHeight+8; } }
+  for (const [id,[v,f,p]] of Object.entries(keep)){ const x=document.querySelector(`.paper .cc[data-id="${CSS.escape(id)}"] textarea`); if(x){ x.value=v; if(f){ x.focus({preventScroll:true}); try{x.setSelectionRange(p,p)}catch(e){} } } }
+  const n=cmtCount(), nb=$('#cmtNav'); nb.hidden=!n; nb.textContent=`💬 댓글 ${n}`;
+  cmtPaint();
+}
+function cmtPaint(){ let st=$('#cmtOnCss'); if(!st){ st=document.createElement('style'); st.id='cmtOnCss'; document.head.append(st); }
+  st.textContent = cmtActive ? `#ed span.cmt[data-cmt="${CSS.escape(cmtActive)}"]{background:var(--cmt-on)}` : '';
+  document.querySelectorAll('.cc').forEach(x=>x.classList.toggle('on', x.dataset.id===cmtActive)); }
+function cmtSheetOpen(id){ const c=cmtData(id) || (cmtNew&&cmtNew.id===id ? {id, doc:!!cmtNew.doc, note:'', reply:'', text:cmtNew.text||''} : null); if(!c) return cmtSheetClose();
+  const sh=$('#cmtSheet'); sh.innerHTML=''; const el=cmtCard(c); el.querySelector('.acts').insertAdjacentHTML('beforeend','<span class="grow"></span><button type="button" data-a="close">닫기</button>'); sh.append(el); sh.hidden=false; sh.dataset.id=id;
+  const ta=el.querySelector('textarea'); if(ta) ta.focus(); }
+function cmtSheetClose(){ const sh=$('#cmtSheet'); if(!sh) return; sh.hidden=true; sh.innerHTML=''; sh.dataset.id=''; }
+function cmtShow(id){ // 카드 열기: 넓은 화면은 옆 카드, 좁은 화면은 아래 카드
+  cmtActive=id; const c=cmtData(id) || (cmtNew&&cmtNew.id===id?{doc:cmtNew.doc}:null); if(!c) return;
+  if (c.doc || cmtWide()){ cmtSheetClose(); renderCmts(); const card=document.querySelector(`.paper .cc[data-id="${CSS.escape(id)}"]`); if(card){ const ta=card.querySelector('textarea'); if(ta) ta.focus({preventScroll:true}); } }
+  else { cmtPaint(); cmtSheetOpen(id); }
+}
+function wrapRange(r, id){
+  const ed=$('#ed'); let root=r.commonAncestorContainer; if(root.nodeType===3) root=root.parentNode;
+  const tw=document.createTreeWalker(root, NodeFilter.SHOW_TEXT), list=[]; let n, inOld=null;
+  while ((n=tw.nextNode())){
+    if (!r.intersectsNode(n)) continue;
+    const s=n===r.startContainer?r.startOffset:0, e=n===r.endContainer?r.endOffset:n.length;
+    if (s>=e || !n.data.slice(s,e).trim()) continue;
+    const p=n.parentElement; if(!p || !ed.contains(p) || !p.closest(BLK+',td,th')) continue;
+    const old=p.closest('.cmt'); if(old){ inOld=inOld||old.dataset.cmt; continue; }
+    list.push([n,s,e]);
+  }
+  for (const [n,s,e] of list){ let t=n; if(e<t.length) t.splitText(e); if(s>0) t=t.splitText(s);
+    const sp=document.createElement('span'); sp.className='cmt'; sp.dataset.cmt=id; sp.dataset.note=''; t.replaceWith(sp); sp.append(t); }
+  return [list.length, inOld];
+}
+function unwrapCmt(id){ $('#ed').querySelectorAll(`span.cmt[data-cmt="${CSS.escape(id)}"]`).forEach(sp=>sp.replaceWith(...sp.childNodes)); $('#ed').normalize(); }
+function cmtStart(r){
+  if (!cur || !$('#ed')) return;
+  if (cur.saving || $('#ed').contentEditable==='false') return toast('다듬는 중이에요. 끝나면 달아 주세요');
+  if (!r || r.collapsed || !$('#ed').contains(r.commonAncestorContainer) || !r.toString().trim()) return toast('댓글 달 글자를 먼저 드래그하세요 (글 전체는 도구줄 💬)');
+  cmtFlush();
+  const id=cmtId(), [k, old]=wrapRange(r, id);
+  $('#cmtPop').hidden=true;
+  if (!k){ if(old){ toast('이미 댓글이 달린 글자예요'); return cmtShow(old); } return toast('댓글 달 글자를 먼저 드래그하세요'); }
+  getSelection().removeAllRanges();
+  cmtNew={id, doc:false}; cmtActive=id; renderCmts(); cmtShow(id);
+}
+function cmtStartDoc(){ if(!cur||!$('#ed')) return; if(cur.saving) return toast('다듬는 중이에요'); cmtFlush(); cmtNew={id:cmtId(), doc:true}; cmtActive=cmtNew.id; cmtSheetClose(); renderCmts();
+  $('#scroll').scrollTo({top:0, behavior:'smooth'}); const ta=$('#docCmts textarea'); if(ta) ta.focus({preventScroll:true}); }
+function cmtCommit(id, note){
+  note=(note||'').trim(); const isNew=cmtNew&&cmtNew.id===id, doc=isNew?cmtNew.doc:!!(cur.docCmts||[]).find(c=>c.id===id);
+  if (!note) return cmtCancel(id);
+  if (doc){ const d=(cur.docCmts||[]).find(c=>c.id===id); if(d){ if(d.note!==note){ d.note=note; d.reply=''; } } else (cur.docCmts=cur.docCmts||[]).push({id, note, reply:''}); }
+  else $('#ed').querySelectorAll(`span.cmt[data-cmt="${CSS.escape(id)}"]`).forEach(sp=>{ if(sp.dataset.note!==note){ sp.dataset.note=note; sp.removeAttribute('data-reply'); } });   // 지시를 고치면 지난 클로드 답은 뗀다
+  cmtNew=null; cmtEdit=null; markDirty(); cmtSheetClose(); renderCmts();
+}
+function cmtCancel(id){ if (cmtNew&&cmtNew.id===id){ if(!cmtNew.doc) unwrapCmt(id); cmtNew=null; } cmtEdit=null; cmtSheetClose(); renderCmts(); }
+function cmtRemove(id, msg){ if (cur.docCmts && cur.docCmts.some(c=>c.id===id)) cur.docCmts=cur.docCmts.filter(c=>c.id!==id); else unwrapCmt(id);
+  if (cmtActive===id) cmtActive=null; cmtEdit=null; markDirty(); cmtSheetClose(); renderCmts(); toast(msg); }
+function cmtFlush(){ // 저장·탭 바꿀 때 쓰던 댓글 마무리: 글이 있으면 저장, 없으면 취소
+  const id = cmtNew ? cmtNew.id : cmtEdit; if(!id || !$('#ed')) return;
+  const ta=document.querySelector(`.cc[data-id="${CSS.escape(id)}"] textarea`);
+  ta && ta.value.trim() ? cmtCommit(id, ta.value) : cmtCancel(id); }
+document.addEventListener('click', e=>{
+  const b=e.target.closest('.cc [data-a]'); if(b){
+    const card=b.closest('.cc'), id=card.dataset.id, a=b.dataset.a;
+    if (cur && cur.saving && a!=='close') return toast('다듬는 중이에요');
+    if (a==='ok') cmtCommit(id, card.querySelector('textarea').value);
+    else if (a==='cancel') cmtCancel(id);
+    else if (a==='edit'){ cmtEdit=id; cmtActive=id; card.closest('#cmtSheet') ? cmtSheetOpen(id) : (renderCmts(), (document.querySelector(`.paper .cc[data-id="${CSS.escape(id)}"] textarea`)||{focus(){}}).focus()); }
+    else if (a==='del') cmtRemove(id, '댓글을 지웠어요');
+    else if (a==='done') cmtRemove(id, '해결 — 댓글을 걷었어요');
+    else if (a==='close'){ cmtFlush(); cmtSheetClose(); }
+    return;
+  }
+  const card=e.target.closest('.paper .cc'); if(card && !e.target.closest('textarea')){ cmtActive=card.dataset.id; cmtPaint(); const g=cmtGroups().get(card.dataset.id); if(g) g.els[0].scrollIntoView({block:'nearest', behavior:'smooth'}); return; }
+  const sp=e.target.closest('#ed span.cmt[data-cmt]');
+  if (sp){ if(getSelection().isCollapsed) cmtShow(sp.dataset.cmt); return; }
+  if (!e.target.closest('#cmtSheet,#cmtPop,#cmtNav') && !$('#cmtSheet').hidden && !(cmtNew||cmtEdit)) cmtSheetClose();
+});
+document.addEventListener('keydown', e=>{ const ta=e.target.closest && e.target.closest('.cc textarea'); if(!ta) return; const id=ta.closest('.cc').dataset.id;
+  if (e.key==='Enter' && (e.metaKey||e.ctrlKey)){ e.preventDefault(); cmtCommit(id, ta.value); }
+  else if (e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); cmtCancel(id); } }, true);
+/* 글자를 고르면 「💬 댓글」 버튼 (폰은 길게 눌러 고른 뒤 — 폰 기본 메뉴와 안 겹치게 아래로) */
+function cmtPopUpdate(){
+  const b=$('#cmtPop'), ed=$('#ed'), s=getSelection();
+  if (!ed || !cur || cur.saving || !s.rangeCount || s.isCollapsed || ed.contentEditable==='false'){ b.hidden=true; return; }
+  const r=s.getRangeAt(0); if (!ed.contains(r.commonAncestorContainer) || !r.toString().trim() || JXB.inMind(r.commonAncestorContainer.nodeType===1?r.commonAncestorContainer:r.commonAncestorContainer.parentElement)){ b.hidden=true; return; }
+  cmtSel=r.cloneRange();
+  const rs=r.getClientRects(), last=rs[rs.length-1]||r.getBoundingClientRect(), first=rs[0]||last, coarse=matchMedia('(pointer:coarse)').matches;
+  b.hidden=false; const bw=b.offsetWidth||80;
+  let x=Math.min(innerWidth-bw-8, Math.max(8, last.right-bw/2)), y=last.bottom+(coarse?40:8);
+  if (y+44>innerHeight) y=Math.max(8, first.top-(coarse?84:44));
+  b.style.left=x+'px'; b.style.top=y+'px';
+}
+document.addEventListener('selectionchange', ()=>{ clearTimeout(cmtPopUpdate._t); cmtPopUpdate._t=setTimeout(cmtPopUpdate,120); });
+$('#scroll').addEventListener('scroll', ()=>{ if(!$('#cmtPop').hidden){ clearTimeout(cmtPopUpdate._s); cmtPopUpdate._s=setTimeout(cmtPopUpdate,80); } }, {passive:true});
+$('#cmtPop').addEventListener('mousedown', e=>e.preventDefault());
+$('#cmtPop').addEventListener('click', ()=>{ const s=getSelection(); cmtStart(s.rangeCount&&!s.isCollapsed ? s.getRangeAt(0).cloneRange() : cmtSel); });
+$('#cmtBtn').onclick=cmtStartDoc;
+$('#cmtNav').onclick=()=>{   // 차례로 이동
+  if(!cur) return; const ids=[...(cur.docCmts||[]).map(c=>c.id), ...cmtGroups().keys()]; if(!ids.length) return;
+  cmtNavI=(ids.indexOf(cmtActive)+1)%ids.length; const id=ids[cmtNavI], g=cmtGroups().get(id);
+  if (g) g.els[0].scrollIntoView({block:'center', behavior:'smooth'}); else { const c=document.querySelector(`#docCmts .cc[data-id="${CSS.escape(id)}"]`); c && c.scrollIntoView({block:'center', behavior:'smooth'}); }
+  cmtShow(id); $('#cmtNav').textContent=`💬 댓글 ${cmtNavI+1}/${ids.length}`;
+};
+
+/* 시작 */
+document.execCommand('defaultParagraphSeparator', false, 'p');
+(async()=>{
+  await loadList();
+  pullNow();   // 11/17 열 때(새로고침 포함) 폰에서 쓴 것 바로 받아 오기 — 기다리지 않음
+  if (store.get('focus', false)) setFocus(true);
+  for (const [c,n] of store.get('tabs',[])){
+    if (data[c] && data[c].docs.some(d=>d.name===n)){
+      const d=await api(`/api/doc?c=${c}&n=${encodeURIComponent(n)}`);
+      const t={id:++seq,c,name:n,saved:n,html:d.html,savedHtml:d.html,updated:d.updated,ver:d.ver,dirty:false};
+      const dr=store.get(draftKey(t)); if(dr&&dr.html!==d.html) t.draft=dr;
+      tabs.push(t);
+    }
+  }
+  if (location.hash==='#today'){ history.replaceState(null,'',location.pathname); return openToday(); }
+  if (location.hash==='#mind'){ history.replaceState(null,'',location.pathname); const lc0=store.get('cur',null); const t0=tabs.find(t=>t.c==='mind'&&lc0&&t.saved===lc0[1]); return t0 ? show(t0) : openMind(); }
+  const lc=store.get('cur',null);
+  show(tabs.find(t=>lc&&t.c===lc[0]&&t.saved===lc[1]) || tabs[0] || null);
+})();
+</script>
+</body>
+</html>
